@@ -1,0 +1,11 @@
+# UniPresence Pro — Dépendances Python
+# Compatible Python 3.10+
+# Installation : pip install -r requirements.txt
+# SQLite est intégré dans Python (module sqlite3), pas besoin de l'installer.
+
+bcrypt==4.3.0
+qrcode[pil]==7.4.2
+Pillow==10.4.0
+reportlab==4.2.5
+opencv-python
+numpy

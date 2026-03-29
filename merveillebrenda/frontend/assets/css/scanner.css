@@ -1,0 +1,375 @@
+/* ==========================================================================
+   scanner.css — Kiosque de pointage QR — UniPresence Pro
+   ========================================================================== */
+
+/* ── Layout kiosque ─────────────────────────────────────────────── */
+.scanner-kiosk-body {
+  overflow: hidden;
+  height: 100vh;
+  background: #000;
+}
+
+.scanner-kiosk-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px); /* 60px = hauteur pub-header */
+}
+
+/* ── Zone caméra ────────────────────────────────────────────────── */
+.scanner-viewport-wrap {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #000;
+}
+
+#camera-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Placeholder avant caméra ───────────────────────────────────── */
+.cam-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c0c;
+  color: rgba(255,255,255,.55);
+  gap: 16px;
+  z-index: 2;
+}
+
+.cam-placeholder-icon {
+  opacity: .4;
+}
+
+.cam-placeholder-text {
+  font-size: .95rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+/* ── Overlay du cadre de scan ───────────────────────────────────── */
+.scan-ui-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.scan-frame-box {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+
+/* Coins animés */
+.sf-corner {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+}
+.sf-tl { top: 0; left: 0;  border-top: 3px solid var(--or-iue);  border-left: 3px solid var(--or-iue);  border-radius: 4px 0 0 0; }
+.sf-tr { top: 0; right: 0; border-top: 3px solid var(--or-iue);  border-right: 3px solid var(--or-iue); border-radius: 0 4px 0 0; }
+.sf-bl { bottom: 0; left: 0;  border-bottom: 3px solid var(--or-iue); border-left: 3px solid var(--or-iue);  border-radius: 0 0 0 4px; }
+.sf-br { bottom: 0; right: 0; border-bottom: 3px solid var(--or-iue); border-right: 3px solid var(--or-iue); border-radius: 0 0 4px 0; }
+
+/* Laser de scan */
+.scan-laser {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--or-iue) 40%, #fff 50%, var(--or-iue) 60%, transparent);
+  box-shadow: 0 0 10px 2px rgba(212,163,59,.6);
+  animation: laserScan 1.8s ease-in-out infinite;
+  top: 0;
+}
+
+.scan-hint-text {
+  margin-top: 28px;
+  color: rgba(255,255,255,.75);
+  font-size: .85rem;
+  font-weight: 500;
+  background: rgba(0,0,0,.45);
+  padding: 7px 18px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  letter-spacing: .01em;
+}
+
+/* ── Overlay résultat ───────────────────────────────────────────── */
+.result-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
+.result-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Carte résultat */
+.ov-card {
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 460px;
+  width: 90%;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5);
+  animation: ovCardIn .3s cubic-bezier(.34,1.56,.64,1);
+  border-top: 5px solid currentColor;
+}
+
+.ov-arrivee { color: var(--vert-presence); border-color: var(--vert-presence); }
+.ov-depart  { color: var(--bleu-iue);      border-color: var(--bleu-iue); }
+.ov-retard  { color: var(--orange-retard); border-color: var(--orange-retard); }
+.ov-absent  { color: var(--rouge-alerte);  border-color: var(--rouge-alerte); }
+.ov-error   { color: var(--rouge-alerte);  border-color: var(--rouge-alerte); }
+
+.ov-icon {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.ov-icon-error { color: var(--rouge-alerte); }
+
+.ov-titre {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.ov-nom {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+}
+
+.ov-msg {
+  font-size: .95rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.ov-msg strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Badges statut */
+.ov-badge {
+  display: inline-block;
+  padding: 5px 18px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.ov-badge-present { background: rgba(22,163,74,.12);  color: var(--vert-presence); }
+.ov-badge-retard  { background: rgba(234,88,12,.12);   color: var(--orange-retard); }
+.ov-badge-absent  { background: rgba(220,38,38,.12);   color: var(--rouge-alerte); }
+
+/* Barre de progression (auto-dismiss) */
+.ov-progress-wrap {
+  height: 4px;
+  background: rgba(0,0,0,.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.ov-progress-bar {
+  height: 100%;
+  width: 100%;
+  background: currentColor;
+  opacity: .5;
+  transform-origin: left;
+}
+
+/* ── Barre de statut bas ─────────────────────────────────────────── */
+.scanner-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 42px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.statusbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+
+.statusbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+
+.kiosk-clock-text {
+  font-family: var(--font-mono);
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Points de statut */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+  transition: background .3s;
+}
+
+.status-dot.dot-active {
+  background: var(--vert-presence);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+.status-dot.dot-error   { background: var(--rouge-alerte); }
+.status-dot.dot-loading { background: var(--orange-retard); animation: pulseDot 0.8s ease-in-out infinite; }
+
+/* ── Indicateur d'activité temps réel ──────────────────────────── */
+.scan-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  background: rgba(0,0,0,.52);
+  backdrop-filter: blur(4px);
+  border-radius: 20px;
+  padding: 6px 16px 6px 10px;
+  color: rgba(255,255,255,.9);
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  transition: background .3s;
+  user-select: none;
+}
+
+/* Dot central */
+.sli-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #64748b;
+  transition: background .25s, box-shadow .25s, transform .25s;
+}
+
+/* Caméra active — pulse lente */
+.sli-dot.sli-active {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.2);
+  animation: sliActivePulse 1.4s ease-in-out infinite;
+}
+
+/* Flash à chaque frame envoyée (s'applique PAR-DESSUS sli-active) */
+.sli-dot.sli-frame {
+  animation: sliFrameFlash .45s ease-out forwards !important;
+  box-shadow: 0 0 0 6px rgba(34,197,94,.35) !important;
+}
+
+/* QR détecté dans la frame */
+.sli-dot.sli-detected {
+  background: #22c55e !important;
+  box-shadow: 0 0 0 6px rgba(34,197,94,.35), 0 0 18px rgba(34,197,94,.55) !important;
+  transform: scale(1.4) !important;
+  animation: none !important;
+}
+
+/* Pause / traitement overlay */
+.sli-dot.sli-paused {
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245,158,11,.2);
+  animation: sliActivePulse .65s ease-in-out infinite;
+}
+
+/* Flash vert sur les quatre coins du cadre quand QR trouvé */
+.scan-frame-box.qr-found .sf-corner {
+  border-color: #22c55e !important;
+}
+.scan-laser.qr-found {
+  background: linear-gradient(90deg, transparent, #22c55e 40%, #fff 50%, #22c55e 60%, transparent);
+  box-shadow: 0 0 10px 2px rgba(34,197,94,.6);
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────── */
+@keyframes laserScan {
+  0%   { top: 0;    opacity: 1; }
+  49%  { opacity: 1; }
+  50%  { top: 236px; opacity: 0.6; }
+  50.1%{ top: 0;    opacity: 0; }
+  51%  { opacity: 1; }
+  100% { top: 236px; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes sliActivePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+
+@keyframes sliFrameFlash {
+  0%   { transform: scale(1.55); }
+  100% { transform: scale(1);    }
+}
+
+@keyframes ovCardIn {
+  from { opacity: 0; transform: scale(.88) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)  translateY(0); }
+}
+
+@keyframes ovProgress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .scan-frame-box { width: 180px; height: 180px; }
+  .ov-card { padding: 28px 24px; }
+  .ov-titre { font-size: 1.3rem; }
+  .ov-nom   { font-size: 1.05rem; }
+}

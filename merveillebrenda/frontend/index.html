@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniPresence Pro | IUE Douala</title>
+  <meta name="description" content="Système de gestion des présences des enseignants — Institut Universitaire de l'Entrepreneuriat, Douala">
+
+  <!-- Anti-flash dark mode -->
+  <script>
+    const t = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+
+  <style>
+    /* ─── Reset & base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bleu-iue: #1A3A6B;
+      --bleu-mid: #2D5AA8;
+      --or-iue: #C8A84B;
+      --vert: #16A34A;
+      --rouge: #DC2626;
+      --orange: #EA580C;
+      --bg: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(26,58,107,.10);
+    }
+    html.dark {
+      --bg: #0D1117;
+      --bg-card: #161B22;
+      --text: #E6EDF3;
+      --text-muted: #8B949E;
+      --border: #30363D;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ─── Public header ─── */
+    .pub-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 8px rgba(0,0,0,.06);
+    }
+    .pub-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .pub-header-brand-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--bleu-iue);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .pub-header-brand-text strong {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: var(--bleu-iue);
+    }
+    html.dark .pub-header-brand-text strong { color: var(--or-iue); }
+    .pub-header-brand-text small {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .pub-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.55rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--bleu-iue);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--bleu-mid); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,58,107,.3); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-lg {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border-radius: 10px;
+    }
+
+    /* ─── Theme toggle ─── */
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .theme-toggle:hover { background: var(--border); }
+
+    /* ─── Hero ─── */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 3rem;
+      padding: 4rem 2rem 4rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hero-content {}
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(26,58,107,.08);
+      color: var(--bleu-iue);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    html.dark .hero-eyebrow { background: rgba(200,168,75,.12); color: var(--or-iue); }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--bleu-iue);
+      margin-bottom: 0.75rem;
+    }
+    html.dark .hero-title { color: var(--or-iue); }
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      letter-spacing: .01em;
+    }
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin-bottom: 2rem;
+      line-height: 1.75;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── Hero illustration SVG ─── */
+    .hero-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: floatY 4s ease-in-out infinite;
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+    .hero-visual svg {
+      width: 100%;
+      max-width: 460px;
+      height: auto;
+      filter: drop-shadow(0 20px 40px rgba(26,58,107,.18));
+    }
+
+    /* ─── Features ─── */
+    .features {
+      padding: 4rem 2rem;
+      background: linear-gradient(180deg, var(--bg) 0%, rgba(26,58,107,.04) 100%);
+    }
+    .features-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-tag {
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--or-iue);
+      margin-bottom: .5rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--bleu-iue);
+      margin-bottom: 3rem;
+    }
+    html.dark .section-title { color: var(--or-iue); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
+      .hero-visual { display: none; }
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.75rem;
+      transition: transform .25s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--bleu-iue), var(--or-iue));
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .feature-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--bleu-iue);
+      margin-bottom: .5rem;
+    }
+    html.dark .feature-card h3 { color: var(--or-iue); }
+    .feature-card p {
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ─── Stats ─── */
+    .stats-section {
+      padding: 4rem 2rem;
+    }
+    .stats-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+    .stat-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 1rem;
+    }
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--bleu-iue);
+    }
+    html.dark .stat-value { color: var(--or-iue); }
+    .stat-label {
+      font-size: .82rem;
+      color: var(--text-muted);
+      margin-top: .35rem;
+      font-weight: 500;
+    }
+    .dept-badges {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .dept-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(26,58,107,.08);
+      color: var(--bleu-iue);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    html.dark .dept-badge { background: rgba(200,168,75,.12); color: var(--or-iue); }
+
+    /* ─── Footer ─── */
+    .pub-footer {
+      background: var(--bleu-iue);
+      color: rgba(255,255,255,.75);
+      text-align: center;
+      padding: 2rem;
+      font-size: .875rem;
+    }
+    .pub-footer strong { color: var(--or-iue); }
+
+    /* ─── Animations ─── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-content > * {
+      animation: fadeInUp .6s ease both;
+    }
+    .hero-content > *:nth-child(1) { animation-delay: .05s; }
+    .hero-content > *:nth-child(2) { animation-delay: .15s; }
+    .hero-content > *:nth-child(3) { animation-delay: .25s; }
+    .hero-content > *:nth-child(4) { animation-delay: .35s; }
+    .hero-content > *:nth-child(5) { animation-delay: .45s; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HEADER PUBLIC ═══════════ -->
+  <header class="pub-header">
+    <a href="/" class="pub-header-brand">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="38" height="38"
+             style="border-radius:8px;object-fit:contain;" onerror="this.style.display='none'">
+      </picture>
+      <div class="pub-header-brand-text">
+        <strong>UniPresence Pro</strong>
+        <small>IUE Douala</small>
+      </div>
+    </a>
+    <div class="pub-header-actions">
+      <a href="/scanner" class="btn btn-ghost">Scanner</a>
+      <a href="/a_propos" class="btn btn-ghost">À propos</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Changer le thème">🌙</button>
+      <a href="/connexion" class="btn btn-primary">Connexion →</a>
+    </div>
+  </header>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span>🏛️</span> IUE Douala — Cameroun
+      </div>
+      <h1 class="hero-title">Système de Gestion<br>des Présences</h1>
+      <p class="hero-subtitle">Institut Universitaire de l'Entrepreneuriat — Douala, Cameroun</p>
+      <p class="hero-desc">
+        Gérez les présences de vos enseignants avec précision et efficacité.
+        QR codes uniques, scanner caméra en temps réel, rapports PDF automatiques
+        et statistiques détaillées par département.
+      </p>
+      <div class="hero-cta">
+        <a href="/connexion" class="btn btn-primary btn-lg">
+          🔐 Accéder au système
+        </a>
+        <a href="/a_propos" class="btn btn-ghost btn-lg">
+          En savoir plus
+        </a>
+      </div>
+    </div>
+
+    <!-- Illustration SVG abstraite dashboard/université -->
+    <div class="hero-visual">
+      <svg viewBox="0 0 460 380" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Fond carte principal -->
+        <rect x="30" y="20" width="400" height="340" rx="18" fill="#1A3A6B" opacity=".06"/>
+        <rect x="40" y="30" width="380" height="320" rx="16" fill="white" stroke="#E2E8F0" stroke-width="1.5"/>
+
+        <!-- Topbar simulée -->
+        <rect x="40" y="30" width="380" height="44" rx="16" fill="#1A3A6B"/>
+        <rect x="60" y="47" width="80" height="10" rx="5" fill="#C8A84B" opacity=".9"/>
+        <circle cx="390" cy="52" r="10" fill="#C8A84B" opacity=".6"/>
+        <circle cx="365" cy="52" r="10" fill="white" opacity=".2"/>
+
+        <!-- KPI cards -->
+        <rect x="56"  y="92" width="78" height="56" rx="10" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+        <rect x="146" y="92" width="78" height="56" rx="10" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+        <rect x="236" y="92" width="78" height="56" rx="10" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1"/>
+        <rect x="326" y="92" width="78" height="56" rx="10" fill="#FEF2F2" stroke="#FECACA" stroke-width="1"/>
+
+        <!-- Icônes KPI -->
+        <text x="76"  y="116" font-size="14">👨‍🏫</text>
+        <text x="166" y="116" font-size="14">✅</text>
+        <text x="256" y="116" font-size="14">⏰</text>
+        <text x="346" y="116" font-size="14">❌</text>
+
+        <!-- Valeurs KPI -->
+        <rect x="64"  y="122" width="40" height="8" rx="4" fill="#1A3A6B" opacity=".7"/>
+        <rect x="154" y="122" width="40" height="8" rx="4" fill="#16A34A" opacity=".7"/>
+        <rect x="244" y="122" width="40" height="8" rx="4" fill="#EA580C" opacity=".7"/>
+        <rect x="334" y="122" width="40" height="8" rx="4" fill="#DC2626" opacity=".7"/>
+        <rect x="64"  y="134" width="56" height="5" rx="2.5" fill="#94A3B8" opacity=".5"/>
+        <rect x="154" y="134" width="52" height="5" rx="2.5" fill="#94A3B8" opacity=".5"/>
+        <rect x="244" y="134" width="48" height="5" rx="2.5" fill="#94A3B8" opacity=".5"/>
+        <rect x="334" y="134" width="54" height="5" rx="2.5" fill="#94A3B8" opacity=".5"/>
+
+        <!-- Graphique courbe (ligne de présences) -->
+        <rect x="56" y="164" width="238" height="110" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <rect x="66" y="172" width="100" height="6" rx="3" fill="#1A3A6B" opacity=".5"/>
+        <!-- Axe -->
+        <line x1="72" y1="255" x2="280" y2="255" stroke="#E2E8F0" stroke-width="1"/>
+        <!-- Courbe -->
+        <polyline
+          points="80,240 110,220 140,230 170,200 200,210 230,185 260,195"
+          fill="none" stroke="#1A3A6B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- Aire sous courbe -->
+        <polygon
+          points="80,240 110,220 140,230 170,200 200,210 230,185 260,195 260,255 80,255"
+          fill="#1A3A6B" opacity=".08"/>
+        <!-- Points -->
+        <circle cx="80"  cy="240" r="3.5" fill="#1A3A6B"/>
+        <circle cx="110" cy="220" r="3.5" fill="#1A3A6B"/>
+        <circle cx="140" cy="230" r="3.5" fill="#1A3A6B"/>
+        <circle cx="170" cy="200" r="3.5" fill="#C8A84B"/>
+        <circle cx="200" cy="210" r="3.5" fill="#1A3A6B"/>
+        <circle cx="230" cy="185" r="3.5" fill="#16A34A"/>
+        <circle cx="260" cy="195" r="3.5" fill="#1A3A6B"/>
+
+        <!-- Donut chart -->
+        <rect x="304" y="164" width="112" height="110" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <circle cx="360" cy="218" r="34" fill="none" stroke="#E2E8F0" stroke-width="8"/>
+        <circle cx="360" cy="218" r="34" fill="none" stroke="#16A34A" stroke-width="8"
+                stroke-dasharray="134 80" stroke-dashoffset="21" stroke-linecap="round"/>
+        <circle cx="360" cy="218" r="34" fill="none" stroke="#EA580C" stroke-width="8"
+                stroke-dasharray="30 184" stroke-dashoffset="-113" stroke-linecap="round"/>
+        <text x="360" y="222" text-anchor="middle" font-size="11" font-weight="700" fill="#1A3A6B">78%</text>
+
+        <!-- Liste derniers pointages -->
+        <rect x="56" y="286" width="180" height="52" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <rect x="68" y="295" width="6" height="6" rx="3" fill="#16A34A"/>
+        <rect x="80" y="295" width="80" height="5" rx="2.5" fill="#94A3B8" opacity=".6"/>
+        <rect x="68" y="307" width="6" height="6" rx="3" fill="#16A34A"/>
+        <rect x="80" y="307" width="70" height="5" rx="2.5" fill="#94A3B8" opacity=".6"/>
+        <rect x="68" y="319" width="6" height="6" rx="3" fill="#EA580C"/>
+        <rect x="80" y="319" width="90" height="5" rx="2.5" fill="#94A3B8" opacity=".6"/>
+
+        <!-- Badges dept -->
+        <rect x="248" y="286" width="50" height="20" rx="10" fill="#EFF6FF"/>
+        <text x="273" y="300" text-anchor="middle" font-size="8" fill="#1A3A6B" font-weight="600">ESIT</text>
+        <rect x="248" y="312" width="50" height="20" rx="10" fill="#FFF7ED"/>
+        <text x="273" y="326" text-anchor="middle" font-size="8" fill="#EA580C" font-weight="600">EME</text>
+
+        <!-- QR code stylisé coin -->
+        <rect x="308" y="286" width="52" height="52" rx="8" fill="#1A3A6B" opacity=".05"/>
+        <rect x="312" y="290" width="12" height="12" rx="2" fill="#1A3A6B" opacity=".4"/>
+        <rect x="314" y="292" width="8"  height="8"  rx="1" fill="white"/>
+        <rect x="315" y="293" width="6"  height="6"  rx=".5" fill="#1A3A6B" opacity=".6"/>
+        <rect x="336" y="290" width="12" height="12" rx="2" fill="#1A3A6B" opacity=".4"/>
+        <rect x="338" y="292" width="8"  height="8"  rx="1" fill="white"/>
+        <rect x="339" y="293" width="6"  height="6"  rx=".5" fill="#1A3A6B" opacity=".6"/>
+        <rect x="312" y="314" width="12" height="12" rx="2" fill="#1A3A6B" opacity=".4"/>
+        <rect x="314" y="316" width="8"  height="8"  rx="1" fill="white"/>
+        <rect x="315" y="317" width="6"  height="6"  rx=".5" fill="#1A3A6B" opacity=".6"/>
+        <rect x="326" y="292" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".8"/>
+        <rect x="326" y="298" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".5"/>
+        <rect x="332" y="306" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".8"/>
+        <rect x="326" y="306" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".5"/>
+        <rect x="338" y="306" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".6"/>
+        <rect x="344" y="306" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".8"/>
+        <rect x="326" y="312" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".5"/>
+        <rect x="332" y="318" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".7"/>
+        <rect x="338" y="312" width="4"  height="4"  rx="1" fill="#C8A84B" opacity=".5"/>
+        <rect x="344" y="318" width="10" height="4"  rx="1" fill="#C8A84B" opacity=".6"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════════ FEATURES ═══════════ -->
+  <section class="features">
+    <div class="features-inner">
+      <div class="section-tag">Fonctionnalités</div>
+      <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">🔲</div>
+          <h3>Scan QR Code</h3>
+          <p>Chaque enseignant possède un QR code unique. Le pointage s'effectue en un instant via la caméra ou par upload d'image.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Rapports automatiques</h3>
+          <p>Générez des rapports de présences en PDF ou CSV. Filtrez par enseignant, département, période ou statut en quelques clics.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🏛️</div>
+          <h3>Conçu pour l'IUE</h3>
+          <p>Adapté aux spécificités de l'Institut Universitaire de l'Entrepreneuriat — gestion ESIT, EME et personnel administratif.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STATS ═══════════ -->
+  <section class="stats-section">
+    <div class="stats-inner">
+      <div class="section-tag">Institution</div>
+      <h2 class="section-title">L'IUE en chiffres</h2>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">2</div>
+          <div class="stat-label">Départements</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">ESIT</div>
+          <div class="stat-label">École Supérieure d'Informatique et de Technologie</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">EME</div>
+          <div class="stat-label">École de Management et d'Entrepreneuriat</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">📍</div>
+          <div class="stat-label">Douala, Cameroun</div>
+        </div>
+      </div>
+
+      <div class="dept-badges">
+        <span class="dept-badge">🎓 ESIT — Informatique & Technologie</span>
+        <span class="dept-badge">💼 EME — Management & Entrepreneuriat</span>
+        <span class="dept-badge">📍 Douala, Cameroun</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="pub-footer">
+    <p>© 2024 <strong>IUE Douala</strong> — <strong>UniPresence Pro</strong> &nbsp;|&nbsp; Institut Universitaire de l'Entrepreneuriat &nbsp;|&nbsp; Douala, Cameroun</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/assets/js/theme.js"></script>
+  <script>
+    // Fallback theme toggle si theme.js non encore chargé
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+    });
+
+    // Sync icône au chargement
+    if (document.documentElement.classList.contains('dark')) {
+      document.getElementById('themeToggle').textContent = '☀️';
+    }
+  </script>
+</body>
+</html>

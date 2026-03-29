@@ -1,0 +1,100 @@
+╔══════════════════════════════════════════════════════════════╗
+║              UniPresence Pro — IUE Douala                    ║
+║      Système de gestion des présences par QR Code            ║
+╚══════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PREMIÈRE UTILISATION (à faire une seule fois)
+  ──────────────────────────────────────────────
+
+  1. Assurez-vous d'avoir Python 3.10+ installé.
+     Téléchargement : https://www.python.org/downloads/
+     (Cochez "Add Python to PATH" lors de l'installation)
+
+  2. Double-cliquez sur  INSTALLER.bat
+     → Installe automatiquement toutes les dépendances.
+     → Propose de lancer l'application à la fin.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  UTILISATIONS SUIVANTES
+  ───────────────────────
+
+  Double-cliquez sur  DEMARRER.bat
+  Puis ouvrez votre navigateur à l'adresse :  http://localhost:5000
+
+  NE PAS FERMER la fenêtre noire — c'est le serveur.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  LANCER DEPUIS VS CODE (terminal intégré)
+  ─────────────────────────────────────────
+
+  1. Ouvrez le dossier du projet dans VS Code :
+       Fichier → Ouvrir le dossier → sélectionner  merveillebrenda/
+
+  2. Ouvrez le terminal intégré :
+       Menu  Terminal → Nouveau terminal
+       ou raccourci  Ctrl + `  (accent grave)
+
+  3. À faire une seule fois — installation des dépendances :
+
+       # Créer l'environnement virtuel
+       python -m venv venv
+
+       # Activer l'environnement virtuel
+       venv\Scripts\activate          ← Windows
+       source venv/bin/activate       ← Linux / macOS
+
+       # Installer les dépendances
+       pip install -r requirements.txt
+
+  4. Lancer le serveur :
+
+       # Activer le venv si pas encore fait
+       venv\Scripts\activate
+
+       # Démarrer le serveur
+       python backend/server.py
+
+  5. Ouvrez votre navigateur à :  http://localhost:5000
+
+  Pour arrêter le serveur : appuyez sur  Ctrl + C  dans le terminal.
+
+  CONSEIL VS CODE : Sélectionnez l'interpréteur Python du venv —
+    Ctrl+Shift+P → "Python: Select Interpreter"
+    → choisir  .\venv\Scripts\python.exe
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  IDENTIFIANTS PAR DÉFAUT
+  ────────────────────────
+
+    Email         : admin@iue.cm
+    Mot de passe  : admin123
+
+  Changez ce mot de passe après votre première connexion.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PAGES DISPONIBLES
+  ──────────────────
+
+    Accueil         →  http://localhost:5000/
+    Tableau de bord →  http://localhost:5000/dashboard
+    Enseignants     →  http://localhost:5000/professeurs
+    Séances         →  http://localhost:5000/seances
+    Scanner QR      →  http://localhost:5000/scanner
+    Rapports        →  http://localhost:5000/rapport
+    QR Codes        →  http://localhost:5000/qr_codes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PRÉREQUIS NAVIGATEUR
+  ─────────────────────
+
+  Utilisez Chrome, Firefox ou Edge (version récente).
+  Le scanner QR nécessite l'accès à la caméra du PC/tablette.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

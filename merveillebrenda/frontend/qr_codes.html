@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Codes — UniPresence Pro</title>
+  <script>const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/qr_codes.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="40" height="40" onerror="this.style.display='none'">
+      </picture>
+      <div>
+        <div style="font-weight:700;color:var(--or-iue);font-size:0.95rem;">UniPresence Pro</div>
+        <div style="font-size:0.7rem;color:var(--text-sidebar);opacity:0.7;">IUE Douala</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a href="/dashboard" class="nav-link"><i class="fa-solid fa-house nav-icon"></i> Tableau de bord</a>
+      <a href="/professeurs" class="nav-link"><i class="fa-solid fa-chalkboard-user nav-icon"></i> Enseignants</a>
+      <a href="/seances" class="nav-link"><i class="fa-solid fa-calendar-days nav-icon"></i> Séances</a>
+      <div class="nav-section-title">Rapports</div>
+      <a href="/rapport" class="nav-link"><i class="fa-solid fa-chart-bar nav-icon"></i> Rapports</a>
+      <a href="/qr_codes" class="nav-link active"><i class="fa-solid fa-qrcode nav-icon"></i> QR Codes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="admin-name" style="font-size:0.82rem;font-weight:600;color:var(--text-sidebar);">Admin IUE</div>
+      <div style="font-size:0.75rem;color:var(--text-sidebar);opacity:0.6;margin-bottom:10px;">Administrateur</div>
+      <button onclick="api.logout().then(()=>window.location.href='/connexion')" class="btn btn-ghost btn-sm" style="width:100%;color:var(--text-sidebar);"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="burger-btn" id="burgerBtn"><span></span><span></span><span></span></button>
+      <h1 class="topbar-title">QR Codes Enseignants</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-icon theme-toggle" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+        <div id="userInfo" style="font-size:0.85rem;font-weight:600;">Admin</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Header page -->
+      <div class="qr-page-header">
+        <div class="qr-page-header-left">
+          <h2 class="qr-page-title">
+            <i class="fa-solid fa-qrcode" style="color:var(--bleu-iue);margin-right:10px;"></i>QR Codes Enseignants
+          </h2>
+          <p class="qr-page-subtitle" id="qr-count">Chargement en cours…</p>
+        </div>
+        <div class="qr-export-actions">
+          <button class="btn btn-secondary" onclick="exporterPDF()" id="btn-export-pdf">
+            <i class="fa-solid fa-file-pdf"></i> Exporter PDF
+          </button>
+          <button class="btn btn-secondary" onclick="exporterZIP()" id="btn-export-zip">
+            <i class="fa-solid fa-box-archive"></i> ZIP
+          </button>
+          <a href="/formulaire" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Nouvel enseignant
+          </a>
+        </div>
+      </div>
+
+      <!-- Barre de recherche + filtres département -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;">
+        <div class="qr-search-bar" style="margin-bottom:0;flex:1;min-width:200px;">
+          <i class="fa-solid fa-magnifying-glass qr-search-icon"></i>
+          <input type="text" id="search-qr" class="qr-search-input"
+                 placeholder="Rechercher par nom, prénom ou matricule…"
+                 oninput="filterQR(this.value)">
+        </div>
+        <div class="qr-filters" style="margin-bottom:0;">
+          <span class="qr-filter-label">Dept :</span>
+          <button class="qr-filter-btn active" data-dept="" onclick="setDeptFilter(this,'')">Tous</button>
+          <button class="qr-filter-btn" data-dept="ESIT" onclick="setDeptFilter(this,'ESIT')">ESIT</button>
+          <button class="qr-filter-btn" data-dept="EME"  onclick="setDeptFilter(this,'EME')">EME</button>
+          <button class="qr-filter-btn" data-dept="ADMIN" onclick="setDeptFilter(this,'ADMIN')">ADMIN</button>
+        </div>
+      </div>
+
+      <!-- Info résultats -->
+      <div class="qr-results-info" id="qr-results-info" style="display:none;"></div>
+
+      <!-- Grille QR codes -->
+      <div class="qr-grid" id="qr-grid">
+        <!-- Skeleton loading -->
+        <div class="qr-card" style="pointer-events:none;">
+          <div class="qr-skeleton-image"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--wide" style="margin-top:12px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--medium" style="margin-top:6px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--short" style="margin-top:6px;"></div>
+        </div>
+        <div class="qr-card" style="pointer-events:none;">
+          <div class="qr-skeleton-image"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--wide" style="margin-top:12px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--medium" style="margin-top:6px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--short" style="margin-top:6px;"></div>
+        </div>
+        <div class="qr-card" style="pointer-events:none;">
+          <div class="qr-skeleton-image"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--wide" style="margin-top:12px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--medium" style="margin-top:6px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--short" style="margin-top:6px;"></div>
+        </div>
+        <div class="qr-card" style="pointer-events:none;">
+          <div class="qr-skeleton-image"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--wide" style="margin-top:12px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--medium" style="margin-top:6px;"></div>
+          <div class="qr-skeleton-text qr-skeleton-text--short" style="margin-top:6px;"></div>
+        </div>
+      </div>
+
+      <!-- État vide -->
+      <div id="qr-empty" style="display:none;text-align:center;padding:60px 20px;">
+        <i class="fa-solid fa-qrcode qr-empty-icon"></i>
+        <h3 class="qr-empty-title">Aucun QR code trouvé</h3>
+        <p class="qr-empty-text">Modifiez votre recherche ou ajoutez un nouvel enseignant.</p>
+        <a href="/formulaire" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Ajouter un enseignant</a>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/animations.js"></script>
+<script src="/assets/js/qr_codes.js"></script>
+<script>
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── Filtre département (boutons pills) ────────────────────────
+let _activeDept = '';
+function setDeptFilter(btn, dept) {
+  _activeDept = dept;
+  document.querySelectorAll('.qr-filter-btn[data-dept]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Déclencher le filtre combiné avec la recherche textuelle
+  const searchVal = document.getElementById('search-qr')?.value || '';
+  filterQRCombined(searchVal, dept);
+}
+
+function filterQR(val) {
+  filterQRCombined(val, _activeDept);
+}
+
+function filterQRCombined(text, dept) {
+  if (typeof filteredQR === 'undefined') return;
+  const q = (text || '').trim().toLowerCase();
+  const filtered = (typeof allQRData !== 'undefined' ? allQRData : []).filter(item => {
+    const e = item.enseignant || {};
+    const matchText = !q || (e.nom+' '+e.prenom+' '+(e.matricule||'')).toLowerCase().includes(q);
+    const matchDept = !dept || e.departement === dept;
+    return matchText && matchDept;
+  });
+  // Mettre à jour la grille via la fonction globale si disponible
+  if (typeof renderQRGrid === 'function') {
+    window._filteredQROverride = filtered;
+    renderQRGrid(filtered);
+  }
+  // Info résultats
+  const info = document.getElementById('qr-results-info');
+  if (info) {
+    if (q || dept) {
+      info.style.display = 'block';
+      info.innerHTML = `<strong>${filtered.length}</strong> QR code${filtered.length > 1 ? 's' : ''} affiché${filtered.length > 1 ? 's' : ''}`;
+    } else {
+      info.style.display = 'none';
+    }
+  }
+}
+</script>
+</body>
+</html>

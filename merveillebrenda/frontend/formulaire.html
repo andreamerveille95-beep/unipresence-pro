@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouvel enseignant — UniPresence Pro</title>
+  <script>
+    const t = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="40" height="40" onerror="this.style.display='none'">
+      </picture>
+      <div>
+        <div style="font-weight:700;color:var(--or-iue);font-size:0.95rem;letter-spacing:0.01em;">UniPresence Pro</div>
+        <div style="font-size:0.7rem;color:var(--text-sidebar);opacity:0.7;">IUE Douala</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a href="/dashboard" class="nav-link"><i class="fa-solid fa-house nav-icon"></i> Tableau de bord</a>
+      <a href="/professeurs" class="nav-link active"><i class="fa-solid fa-chalkboard-user nav-icon"></i> Enseignants</a>
+      <a href="/seances" class="nav-link"><i class="fa-solid fa-calendar-days nav-icon"></i> Séances</a>
+      <div class="nav-section-title">Rapports</div>
+      <a href="/rapport" class="nav-link"><i class="fa-solid fa-chart-bar nav-icon"></i> Rapports</a>
+      <a href="/qr_codes" class="nav-link"><i class="fa-solid fa-qrcode nav-icon"></i> QR Codes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="admin-name" style="font-size:0.82rem;font-weight:600;color:var(--text-sidebar);">Admin IUE</div>
+      <div style="font-size:0.75rem;color:var(--text-sidebar);opacity:0.6;margin-bottom:10px;">Administrateur</div>
+      <button onclick="logoutAdmin()" class="btn btn-ghost btn-sm" style="width:100%;color:var(--text-sidebar);"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="burger-btn" id="burgerBtn"><span></span><span></span><span></span></button>
+      <h1 class="topbar-title">Nouvel enseignant</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-icon theme-toggle" id="themeToggle" title="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENU -->
+  <main class="main-content">
+    <div class="container" style="max-width:860px;">
+
+      <!-- Breadcrumb -->
+      <nav style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text-muted);margin-bottom:24px;">
+        <a href="/dashboard" style="color:var(--text-muted);text-decoration:none;">Tableau de bord</a>
+        <span>›</span>
+        <a href="/professeurs" style="color:var(--text-muted);text-decoration:none;">Enseignants</a>
+        <span>›</span>
+        <span style="color:var(--text-primary);font-weight:600;">Nouveau</span>
+      </nav>
+
+      <!-- Formulaire -->
+      <form id="form-enseignant" novalidate>
+
+        <!-- Section 1 : Informations personnelles -->
+        <div class="card" data-reveal style="margin-bottom:24px;padding:28px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;">
+            <div style="font-size:1.5rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--bg-section);border-radius:12px;color:var(--bleu-iue,#1A3A6B);"><i class="fa-solid fa-user"></i></div>
+            <div>
+              <h2 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin:0 0 4px;">Informations personnelles</h2>
+              <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Identité et coordonnées de l'enseignant</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="prenom">Prénom <span style="color:var(--rouge-alerte)">*</span></label>
+              <input type="text" id="prenom" name="prenom" class="form-input" placeholder="Ex : Jean-Pierre" required autocomplete="given-name">
+              <span class="form-error" id="err-prenom" style="display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="nom">Nom de famille <span style="color:var(--rouge-alerte)">*</span></label>
+              <input type="text" id="nom" name="nom" class="form-input" placeholder="Ex : EKAMBI" required autocomplete="family-name">
+              <span class="form-error" id="err-nom" style="display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Adresse e-mail <span style="color:var(--rouge-alerte)">*</span></label>
+              <input type="email" id="email" name="email" class="form-input" placeholder="ex@iue.cm" required autocomplete="email">
+              <span class="form-error" id="err-email" style="display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="telephone">Téléphone</label>
+              <input type="tel" id="telephone" name="telephone" class="form-input" placeholder="+237 6XX XXX XXX" autocomplete="tel">
+            </div>
+          </div>
+          <!-- Photo upload -->
+          <div class="form-group" style="margin-top:16px;">
+            <label class="form-label">Photo de profil</label>
+            <div id="photoZone" onclick="document.getElementById('photoInput').click()"
+                 style="border:2px dashed var(--border-color);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;">
+              <input type="file" id="photoInput" accept="image/*" style="display:none">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-muted);">
+                <div style="font-size:2rem;color:var(--text-muted);"><i class="fa-solid fa-camera"></i></div>
+                <span style="font-size:0.82rem;">Cliquer pour choisir une photo</span>
+                <span style="font-size:0.75rem;opacity:0.7;">JPG, PNG — max 5 Mo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2 : Informations académiques -->
+        <div class="card" data-reveal style="margin-bottom:24px;padding:28px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;">
+            <div style="font-size:1.5rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--bg-section);border-radius:12px;color:var(--bleu-iue,#1A3A6B);"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div>
+              <h2 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin:0 0 4px;">Informations académiques</h2>
+              <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Affectation et statut au sein de l'IUE</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="specialite">Spécialité <span style="color:var(--rouge-alerte)">*</span></label>
+              <input type="text" id="specialite" name="specialite" class="form-input" placeholder="Ex : Informatique, Finance..." required>
+              <span class="form-error" id="err-specialite" style="display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="departement">Département <span style="color:var(--rouge-alerte)">*</span></label>
+              <input type="text" id="departement" name="departement" class="form-input"
+                     placeholder="Ex : ESIT, EME, ADMIN, GRH..." required
+                     list="departements-list" autocomplete="off">
+              <datalist id="departements-list">
+                <option value="ESIT">
+                <option value="EME">
+                <option value="ADMIN">
+              </datalist>
+              <span class="form-error" id="err-departement" style="display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="grade">Grade</label>
+              <select id="grade" name="grade" class="form-select">
+                <option value="">— Sélectionner —</option>
+                <option value="Assistant">Assistant</option>
+                <option value="Chargé">Chargé de cours</option>
+                <option value="Maître">Maître de conférences</option>
+                <option value="Prof">Professeur</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="date_inscription">Date d'inscription</label>
+              <input type="date" id="date_inscription" name="date_inscription" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3 : Matricule -->
+        <div class="card" data-reveal style="margin-bottom:32px;padding:28px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;">
+            <div style="font-size:1.5rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--bg-section);border-radius:12px;color:var(--bleu-iue,#1A3A6B);"><i class="fa-solid fa-id-badge"></i></div>
+            <div>
+              <h2 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin:0 0 4px;">Matricule</h2>
+              <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Généré automatiquement à l'enregistrement</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <input type="text" id="matricule-preview" class="form-input"
+                   style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;letter-spacing:0.05em;max-width:220px;background:var(--bg-section);color:var(--text-muted);"
+                   readonly placeholder="IUE-2025-XXXX">
+            <span style="display:inline-block;padding:4px 10px;border-radius:20px;font-size:0.78rem;background:rgba(var(--or-iue-rgb,45,90,168),0.12);color:var(--or-iue);">Généré automatiquement</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-bottom:40px;">
+          <a href="/professeurs" class="btn btn-ghost">Annuler</a>
+          <button type="submit" class="btn btn-primary" id="btn-submit">
+            <span id="btn-text"><i class="fa-solid fa-floppy-disk"></i> Enregistrer l'enseignant</span>
+            <span id="btn-spinner" style="display:none;"><i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...</span>
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Résultat après création -->
+      <div id="result-section" style="display:none;">
+        <div class="card" style="text-align:center;padding:40px 32px;">
+          <div style="font-size:3rem;margin-bottom:16px;color:#16A34A;"><i class="fa-solid fa-circle-check"></i></div>
+          <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:8px;">Enseignant enregistré !</h2>
+          <p style="color:var(--text-muted);margin-bottom:24px;">Le QR code a été généré et associé au profil.</p>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:28px;">
+            <!-- Photo de profil -->
+            <div id="result-photo-wrap" style="display:none;">
+              <img id="result-photo-img" src="" alt="Photo" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #E2E8F0;">
+            </div>
+            <div id="result-initials-wrap" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1A3A6B,#2D5AA8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;font-weight:700;"></div>
+            <div style="background:#fff;padding:16px;border-radius:12px;display:inline-block;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
+              <img id="qr-result-img" src="" alt="QR Code" style="width:180px;height:180px;display:block;">
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;font-weight:600;" id="matricule-result"></div>
+            <div style="font-size:1rem;font-weight:600;" id="nom-result"></div>
+          </div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <button onclick="downloadQR()" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Télécharger QR</button>
+            <a href="/professeurs" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Retour à la liste</a>
+            <button onclick="resetForm()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nouvel enseignant</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('date_inscription').value = new Date().toISOString().split('T')[0];
+  api.get('/api/me').then(r => {
+    if (r && r.admin) {
+      document.getElementById('admin-name').textContent =
+        ((r.admin.prenom || '') + ' ' + (r.admin.nom || '')).trim() || 'Admin IUE';
+    }
+  }).catch(() => {});
+  document.getElementById('photoInput').addEventListener('change', handlePhoto);
+});
+
+let photoBase64 = '';
+
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    photoBase64 = ev.target.result; // data URI complet
+    const zone = document.getElementById('photoZone');
+    zone.innerHTML = '<img src="' + ev.target.result + '" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">';
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('form-enseignant').addEventListener('submit', async e => {
+  e.preventDefault();
+  clearErrors();
+  const data = {
+    prenom:          document.getElementById('prenom').value.trim(),
+    nom:             document.getElementById('nom').value.trim(),
+    email:           document.getElementById('email').value.trim().toLowerCase(),
+    telephone:       document.getElementById('telephone').value.trim(),
+    specialite:      document.getElementById('specialite').value.trim(),
+    departement:     document.getElementById('departement').value,
+    grade:           document.getElementById('grade').value,
+    date_inscription: document.getElementById('date_inscription').value,
+    photo_base64:    photoBase64,
+  };
+  let valid = true;
+  if (!data.prenom)      { showError('err-prenom', 'Le prénom est requis'); valid = false; }
+  if (!data.nom)         { showError('err-nom', 'Le nom est requis'); valid = false; }
+  if (!data.email)       { showError('err-email', "L'email est requis"); valid = false; }
+  if (!data.specialite)  { showError('err-specialite', 'La spécialité est requise'); valid = false; }
+  if (!data.departement) { showError('err-departement', 'Le département est requis'); valid = false; }
+  if (!valid) return;
+  setBtnLoading(true);
+  try {
+    const result = await api.post('/api/enseignants', data);
+    if (result && result.succes) {
+      showResult(result);
+      showToast('Enseignant créé avec succès !', 'success');
+    } else {
+      showToast((result && result.erreur) || 'Erreur lors de la création', 'error');
+    }
+  } catch (err) {
+    showToast('Erreur de connexion au serveur', 'error');
+  } finally {
+    setBtnLoading(false);
+  }
+});
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; el.style.color = 'var(--rouge-alerte)'; el.style.fontSize = '0.8rem'; }
+}
+function clearErrors() {
+  document.querySelectorAll('.form-error').forEach(el => { el.textContent = ''; el.style.display = 'none'; });
+}
+function setBtnLoading(loading) {
+  document.getElementById('btn-text').style.display = loading ? 'none' : '';
+  document.getElementById('btn-spinner').style.display = loading ? '' : 'none';
+  document.getElementById('btn-submit').disabled = loading;
+}
+function showResult(result) {
+  document.getElementById('form-enseignant').style.display = 'none';
+  document.getElementById('result-section').style.display = '';
+  const ens = result.enseignant || {};
+
+  // QR code — to_base64() retourne déjà le data URI complet
+  if (result.qr_base64) {
+    document.getElementById('qr-result-img').src = result.qr_base64;
+  }
+
+  // Photo de profil
+  const photoWrap = document.getElementById('result-photo-wrap');
+  const initialsWrap = document.getElementById('result-initials-wrap');
+  if (photoBase64) {
+    document.getElementById('result-photo-img').src = photoBase64;
+    photoWrap.style.display = 'block';
+    if (initialsWrap) initialsWrap.style.display = 'none';
+  } else {
+    const initiales = ((ens.prenom||'')[0]||'') + ((ens.nom||'')[0]||'');
+    if (initialsWrap) {
+      initialsWrap.textContent = initiales.toUpperCase();
+      initialsWrap.style.display = 'flex';
+    }
+  }
+
+  document.getElementById('matricule-result').textContent = ens.matricule || '';
+  document.getElementById('nom-result').textContent = ((ens.prenom || '') + ' ' + (ens.nom || '')).trim();
+}
+function downloadQR() {
+  const img = document.getElementById('qr-result-img');
+  if (!img.src || img.src === window.location.href) return;
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = (document.getElementById('matricule-result').textContent || 'QR') + '.png';
+  a.click();
+}
+function resetForm() {
+  document.getElementById('result-section').style.display = 'none';
+  const form = document.getElementById('form-enseignant');
+  form.reset();
+  form.style.display = '';
+  document.getElementById('date_inscription').value = new Date().toISOString().split('T')[0];
+}
+function showToast(msg, type) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + (type || 'info');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+}
+async function logoutAdmin() {
+  await api.logout();
+  window.location.href = '/connexion';
+}
+</script>
+</body>
+</html>

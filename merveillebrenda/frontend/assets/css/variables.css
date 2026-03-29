@@ -1,0 +1,171 @@
+/* ==========================================================================
+   variables.css — UniPresence Pro | IUE Design System
+   Toutes les variables CSS : mode clair (root) et mode sombre (html.dark)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   MODE CLAIR — :root
+   -------------------------------------------------------------------------- */
+:root {
+  /* --- Couleurs de marque IUE --- */
+  --bleu-iue:          #1A3A6B;
+  --or-iue:            #C8A84B;
+  --vert-presence:     #16A34A;
+  --rouge-alerte:      #DC2626;
+  --orange-retard:     #EA580C;
+  --cyan-tech:         #0891B2;
+  --violet-manage:     #7C3AED;
+
+  /* --- Arrière-plans (mode clair) --- */
+  --bg-primary:        #F8FAFF;
+  --bg-card:           #FFFFFF;
+  --bg-sidebar:        #1A3A6B;
+  --bg-section:        #EEF3FF;
+
+  /* --- Textes (mode clair) --- */
+  --text-primary:      #0F172A;
+  --text-muted:        #64748B;
+  --text-sidebar:      #E2E8F0;
+
+  /* --- Bordures & Ombres (mode clair) --- */
+  --border-color:      rgba(26, 58, 107, 0.15);
+  --shadow-card:       0 4px 20px rgba(26, 58, 107, 0.08);
+  --shadow-hover:      0 8px 32px rgba(26, 58, 107, 0.16);
+  --shadow-elevated:   0 12px 40px rgba(26, 58, 107, 0.22);
+
+  /* --- Layout --- */
+  --nav-height:        64px;
+  --sidebar-width:     260px;
+
+  /* --- Rayons de bordure --- */
+  --radius-sm:         6px;
+  --radius-md:         12px;
+  --radius-lg:         20px;
+  --radius-xl:         28px;
+  --radius-full:       9999px;
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow:   500ms ease;
+
+  /* --- Couleurs de statut présence --- */
+  --color-present:     #16A34A;
+  --color-present-bg:  rgba(22, 163, 74, 0.10);
+  --color-retard:      #EA580C;
+  --color-retard-bg:   rgba(234, 88, 12, 0.10);
+  --color-absent:      #DC2626;
+  --color-absent-bg:   rgba(220, 38, 38, 0.10);
+  --color-excuse:      #7C3AED;
+  --color-excuse-bg:   rgba(124, 58, 237, 0.10);
+  --color-planifiee:   #0891B2;
+  --color-planifiee-bg: rgba(8, 145, 178, 0.10);
+
+  /* --- Badges département --- */
+  --badge-esit-bg:     rgba(26, 58, 107, 0.12);
+  --badge-esit-color:  #1A3A6B;
+  --badge-eme-bg:      rgba(124, 58, 237, 0.12);
+  --badge-eme-color:   #7C3AED;
+  --badge-admin-bg:    rgba(200, 168, 75, 0.15);
+  --badge-admin-color: #A07830;
+
+  /* --- Gradients --- */
+  --gradient-bleu:     linear-gradient(135deg, #1A3A6B 0%, #2D5BA8 100%);
+  --gradient-or:       linear-gradient(135deg, #C8A84B 0%, #E8C96A 100%);
+  --gradient-vert:     linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+  --gradient-rouge:    linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+  --gradient-orange:   linear-gradient(135deg, #EA580C 0%, #F97316 100%);
+  --gradient-cyan:     linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+  --gradient-violet:   linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+  --gradient-hero:     linear-gradient(135deg, #1A3A6B 0%, #0D2244 50%, #0A1628 100%);
+
+  /* --- Typographie --- */
+  --font-display:      'Playfair Display', Georgia, serif;
+  --font-body:         'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:         'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* --- Tailles de police --- */
+  --text-xs:           0.75rem;
+  --text-sm:           0.875rem;
+  --text-base:         1rem;
+  --text-lg:           1.125rem;
+  --text-xl:           1.25rem;
+  --text-2xl:          1.5rem;
+  --text-3xl:          1.875rem;
+  --text-4xl:          2.25rem;
+
+  /* --- Espacements --- */
+  --space-1:           4px;
+  --space-2:           8px;
+  --space-3:           12px;
+  --space-4:           16px;
+  --space-5:           20px;
+  --space-6:           24px;
+  --space-8:           32px;
+  --space-10:          40px;
+  --space-12:          48px;
+  --space-16:          64px;
+
+  /* --- Z-index --- */
+  --z-dropdown:        200;
+  --z-sticky:          300;
+  --z-fixed:           400;
+  --z-modal-backdrop:  500;
+  --z-modal:           600;
+  --z-popover:         700;
+  --z-toast:           800;
+  --z-tooltip:         900;
+}
+
+/* --------------------------------------------------------------------------
+   MODE SOMBRE — html.dark
+   -------------------------------------------------------------------------- */
+html.dark {
+  /* --- Arrière-plans (mode sombre) --- */
+  --bg-primary:        #0A0F1E;
+  --bg-card:           #111827;
+  --bg-sidebar:        #060D1E;
+  --bg-section:        #0F1729;
+
+  /* --- Textes (mode sombre) --- */
+  --text-primary:      #F1F5F9;
+  --text-muted:        #94A3B8;
+  --text-sidebar:      #CBD5E1;
+
+  /* --- Bordures & Ombres (mode sombre) --- */
+  --border-color:      rgba(200, 168, 75, 0.20);
+  --shadow-card:       0 4px 20px rgba(0, 0, 0, 0.40);
+  --shadow-hover:      0 8px 32px rgba(0, 0, 0, 0.60);
+  --shadow-elevated:   0 12px 40px rgba(0, 0, 0, 0.70);
+
+  /* --- Sidebar (mode sombre) --- */
+  --bg-sidebar:        #060D1E;
+
+  /* --- Couleurs de statut présence (mode sombre — inchangées, restent lisibles) --- */
+  --color-present:     #22C55E;
+  --color-present-bg:  rgba(34, 197, 94, 0.12);
+  --color-retard:      #F97316;
+  --color-retard-bg:   rgba(249, 115, 22, 0.12);
+  --color-absent:      #EF4444;
+  --color-absent-bg:   rgba(239, 68, 68, 0.12);
+  --color-excuse:      #A855F7;
+  --color-excuse-bg:   rgba(168, 85, 247, 0.12);
+  --color-planifiee:   #22D3EE;
+  --color-planifiee-bg: rgba(34, 211, 238, 0.12);
+
+  /* --- Badges département (mode sombre) --- */
+  --badge-esit-bg:     rgba(45, 91, 168, 0.25);
+  --badge-esit-color:  #93B5E8;
+  --badge-eme-bg:      rgba(124, 58, 237, 0.25);
+  --badge-eme-color:   #C4B5FD;
+  --badge-admin-bg:    rgba(200, 168, 75, 0.20);
+  --badge-admin-color: #E8C96A;
+
+  /* --- Couleurs de marque ajustées pour sombre --- */
+  --bleu-iue:          #3D74C9;
+  --vert-presence:     #22C55E;
+
+  /* --- Gradients ajustés pour sombre --- */
+  --gradient-bleu:     linear-gradient(135deg, #2D5BA8 0%, #3D74C9 100%);
+  --gradient-hero:     linear-gradient(135deg, #060D1E 0%, #0A1628 50%, #0F1E3A 100%);
+}

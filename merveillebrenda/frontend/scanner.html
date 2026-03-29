@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scanner QR Code — UniPresence Pro | IUE</title>
+
+  <!-- Anti-flash dark mode -->
+  <script>
+    const t = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Polices IUE -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      background: var(--bg-primary);
+      min-height: 100vh;
+      font-family: var(--font-body, 'DM Sans', sans-serif);
+      color: var(--text-primary);
+      margin: 0;
+    }
+    html.dark body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* ── NAVBAR ── */
+    .pub-header {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 60px;
+      background: rgba(255,255,255,.96); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-card);
+    }
+    html.dark .pub-header { background: rgba(15,23,42,.96); }
+
+    .pub-header-brand {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none;
+    }
+    .pub-header-brand-text strong {
+      display: block; font-family: var(--font-display);
+      font-size: .95rem; font-weight: 700; color: var(--bleu-iue);
+    }
+    html.dark .pub-header-brand-text strong { color: var(--or-iue); }
+    .pub-header-brand-text small { font-size: .7rem; color: var(--text-muted); }
+
+    .pub-header-actions { display: flex; align-items: center; gap: 10px; }
+
+    .pub-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      font-size: .82rem; font-weight: 600;
+      cursor: pointer; border: none; text-decoration: none;
+      transition: all var(--transition-fast); font-family: var(--font-body);
+    }
+    .pub-btn-primary { background: var(--bleu-iue); color: #fff; }
+    .pub-btn-primary:hover { background: var(--bleu-iue-hover, #2D5BA8); transform: translateY(-1px); }
+    .pub-btn-ghost  { background: transparent; color: var(--text-primary); }
+    html.dark .pub-btn-ghost { color: var(--text-primary); }
+    .pub-btn-ghost:hover { background: var(--bg-section); }
+    .pub-btn-active { color: var(--bleu-iue) !important; font-weight: 700; }
+    html.dark .pub-btn-active { color: var(--or-iue) !important; }
+
+    .theme-toggle {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; background: transparent; font-size: .9rem;
+      transition: all var(--transition-fast); color: var(--text-primary);
+    }
+    .theme-toggle:hover { transform: rotate(20deg); background: var(--bg-section); }
+
+    /* ── WRAPPER PAGE ── */
+    .scanner-page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 28px 16px 90px;
+    }
+
+    /* ── CARD PRINCIPALE ── */
+    .home-card {
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-elevated);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+    }
+    html.dark .home-card {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    /* En-tête : dégradé bleu IUE */
+    .home-card-header {
+      background: var(--gradient-bleu);
+      color: #fff;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .home-card-header h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem; font-weight: 600; margin: 0;
+      color: #fff;
+    }
+    .home-card-header h4 i { margin-right: 8px; }
+
+    /* Corps card */
+    .home-card-body {
+      padding: 28px 24px;
+      text-align: center;
+      background: var(--bg-card);
+    }
+    html.dark .home-card-body {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .scanner-lead {
+      font-size: .97rem;
+      color: var(--text-secondary, var(--text-muted));
+      margin: 0 0 20px;
+      line-height: 1.65;
+    }
+    html.dark .scanner-lead { color: var(--text-muted); }
+
+    /* ── ZONE VIDÉO ── */
+    #camera-feed {
+      width: 100%; max-width: 500px;
+      border-radius: var(--radius-sm);
+      display: block; margin: 0 auto;
+      background: #000;
+    }
+    .scanner-container {
+      position: relative; margin: 0 auto 10px; max-width: 500px;
+    }
+    .scanner-overlay-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,.22) 0%, rgba(0,0,0,0) 20%,
+        rgba(0,0,0,0)  80%, rgba(0,0,0,.22) 100%);
+      pointer-events: none;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ── CADRE ANIMÉ (coins + laser) ── */
+    .scan-frame-box {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      border-radius: var(--radius-sm);
+    }
+    .sf-corner {
+      position: absolute; width: 28px; height: 28px;
+      transition: border-color .25s;
+    }
+    .sf-tl { top:14px; left:14px;   border-top:3px solid var(--bleu-iue);   border-left:3px solid var(--bleu-iue);   border-radius:4px 0 0 0; }
+    .sf-tr { top:14px; right:14px;  border-top:3px solid var(--bleu-iue);   border-right:3px solid var(--bleu-iue);  border-radius:0 4px 0 0; }
+    .sf-bl { bottom:14px; left:14px;  border-bottom:3px solid var(--bleu-iue); border-left:3px solid var(--bleu-iue);   border-radius:0 0 0 4px; }
+    .sf-br { bottom:14px; right:14px; border-bottom:3px solid var(--bleu-iue); border-right:3px solid var(--bleu-iue);  border-radius:0 0 4px 0; }
+
+    .scan-laser {
+      position: absolute; left:14px; right:14px; height:2px;
+      background: linear-gradient(90deg, transparent, var(--bleu-iue) 40%, #fff 50%, var(--bleu-iue) 60%, transparent);
+      box-shadow: 0 0 8px 2px rgba(26,58,107,.45);
+      animation: laserScan 2s ease-in-out infinite;
+      top: 14px; transition: background .2s, box-shadow .2s;
+    }
+
+    /* Flash vert quand QR détecté */
+    .scan-frame-box.qr-found .sf-corner { border-color: var(--vert-presence) !important; }
+    .scan-frame-box.qr-found .scan-laser {
+      background: linear-gradient(90deg, transparent, var(--vert-presence) 40%, #fff 50%, var(--vert-presence) 60%, transparent);
+      box-shadow: 0 0 10px 3px rgba(22,163,74,.55);
+    }
+
+    @keyframes laserScan {
+      0%    { top:14px;              opacity:1; }
+      49%   { opacity:1; }
+      50%   { top:calc(100% - 14px); opacity:.55; }
+      50.1% { top:14px;              opacity:0; }
+      51%   { opacity:1; }
+      100%  { top:calc(100% - 14px); }
+    }
+
+    /* ── PLACEHOLDER CAMÉRA ── */
+    .cam-placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      background: var(--bg-sidebar);
+      border-radius: var(--radius-sm);
+      color: var(--text-sidebar);
+      font-size: .88rem;
+    }
+
+    /* ── OVERLAY RÉSULTAT ── */
+    .result-overlay {
+      position: absolute; inset: 0;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.55);
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s; z-index: 10;
+    }
+    .result-overlay.visible { opacity: 1; pointer-events: auto; }
+
+    .ov-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 22px 28px; text-align: center;
+      max-width: 300px; width: 90%;
+      box-shadow: var(--shadow-elevated);
+    }
+    html.dark .ov-card { background: var(--bg-card); color: var(--text-primary); }
+    .ov-icon  { font-size: 2rem; margin-bottom: 6px; }
+    .ov-titre { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; font-family: var(--font-display); }
+    .ov-nom   { font-weight: 600; color: var(--bleu-iue); margin-bottom: 4px; }
+    html.dark .ov-nom { color: var(--or-iue); }
+    .ov-msg   { font-size: .88rem; color: var(--text-muted); margin-bottom: 8px; }
+    .ov-arrivee .ov-icon { color: var(--vert-presence); }
+    .ov-depart  .ov-icon { color: var(--bleu-iue); }
+    .ov-error   .ov-icon { color: var(--rouge-alerte); }
+    .ov-retard  .ov-icon { color: var(--orange-retard); }
+
+    .ov-badge {
+      display: inline-block;
+      padding: 3px 12px; border-radius: var(--radius-full);
+      font-size: .78rem; font-weight: 600; margin-bottom: 10px;
+    }
+    .ov-badge-present { background: var(--color-present-bg); color: var(--color-present); }
+    .ov-badge-retard  { background: var(--color-retard-bg);  color: var(--color-retard); }
+    .ov-badge-absent  { background: var(--color-absent-bg);  color: var(--color-absent); }
+
+    .ov-progress-wrap { background: var(--border-color); border-radius: 4px; height: 4px; overflow: hidden; }
+    .ov-progress-bar  { height: 100%; background: var(--bleu-iue); transform-origin: left; }
+    @keyframes ovProgress { from { width:100%; } to { width:0%; } }
+
+    /* ── INDICATEUR TEMPS RÉEL ── */
+    .scan-live-bar {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; font-size: .82rem; color: var(--text-muted);
+      font-weight: 500; margin-top: 8px;
+    }
+    .sli-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--border-color); flex-shrink: 0;
+      transition: background .25s, box-shadow .25s, transform .25s;
+    }
+    .sli-dot.sli-active   { background: var(--vert-presence); box-shadow: 0 0 0 3px var(--color-present-bg); animation: sliPulse 1.4s ease-in-out infinite; }
+    .sli-dot.sli-frame    { animation: sliFlash .45s ease-out forwards !important; box-shadow: 0 0 0 6px var(--color-present-bg) !important; background: var(--vert-presence) !important; }
+    .sli-dot.sli-detected { background: var(--vert-presence) !important; box-shadow: 0 0 0 6px var(--color-present-bg), 0 0 14px rgba(22,163,74,.5) !important; transform: scale(1.4) !important; animation: none !important; }
+    .sli-dot.sli-paused   { background: var(--orange-retard); box-shadow: 0 0 0 3px var(--color-retard-bg); animation: sliPulse .65s ease-in-out infinite; }
+
+    @keyframes sliPulse { 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
+    @keyframes sliFlash { 0%{ transform:scale(1.6) } 100%{ transform:scale(1) } }
+
+    /* ── CARTE RÉSULTAT (sous vidéo) ── */
+    #result-card {
+      display: none;
+      margin: 16px auto 0;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-card);
+      background: var(--bg-card);
+      overflow: hidden;
+    }
+    html.dark #result-card {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    .result-card-header {
+      background: var(--gradient-vert);
+      color: #fff;
+      padding: 12px 18px;
+    }
+    .result-card-header.header-depart { background: var(--gradient-bleu); }
+    .result-card-header.header-retard { background: var(--gradient-orange); }
+    .result-card-header.header-error  { background: var(--gradient-rouge); }
+    .result-card-header h5 {
+      margin: 0; font-size: 1rem; font-weight: 600; color: #fff;
+    }
+    .result-card-header h5 i { margin-right: 8px; }
+
+    .result-card-body {
+      padding: 18px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+    html.dark .result-card-body {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    #scan-result {
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    /* Bouton scanner à nouveau */
+    #scan-again {
+      background: var(--bleu-iue); color: #fff;
+      border: none; padding: 8px 18px;
+      border-radius: var(--radius-sm); font-weight: 600;
+      font-family: var(--font-body); font-size: .85rem;
+      cursor: pointer; transition: all var(--transition-fast);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    #scan-again:hover { background: var(--bleu-iue-hover, #2D5BA8); transform: translateY(-1px); }
+    #scan-again i { font-size: .82rem; }
+
+    /* ── BARRE DE STATUT ── */
+    .scanner-statusbar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 20px; font-size: .75rem;
+      background: rgba(255,255,255,.92); backdrop-filter: blur(6px);
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted); z-index: 90;
+    }
+    html.dark .scanner-statusbar {
+      background: rgba(15,23,42,.92);
+      border-color: var(--border-color);
+    }
+    .statusbar-left, .statusbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border-color);
+      display: inline-block; flex-shrink: 0;
+    }
+    .status-dot.dot-active  { background: var(--vert-presence); box-shadow: 0 0 0 2px var(--color-present-bg); animation: sliPulse 2s ease-in-out infinite; }
+    .status-dot.dot-error   { background: var(--rouge-alerte); }
+    .status-dot.dot-loading { background: var(--bleu-iue); animation: sliPulse .8s ease-in-out infinite; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .pub-header { padding: 0 14px; }
+      .scanner-page { padding: 16px 10px 80px; }
+      .home-card-body { padding: 18px 14px; }
+      .pub-btn-ghost:not(.pub-btn-active) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR IUE ══════════════════════════════════════════════════ -->
+<header class="pub-header">
+  <a href="/" class="pub-header-brand">
+    <picture>
+      <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+      <img src="/assets/images/logo-iue.png" alt="IUE" width="36" height="36"
+           style="border-radius:7px;object-fit:contain;" onerror="this.style.display='none'">
+    </picture>
+    <div class="pub-header-brand-text">
+      <strong>UniPresence Pro</strong>
+      <small>IUE Douala</small>
+    </div>
+  </a>
+  <div class="pub-header-actions">
+    <a href="/scanner"   class="pub-btn pub-btn-ghost pub-btn-active">Scanner</a>
+    <a href="/a_propos"  class="pub-btn pub-btn-ghost">À propos</a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Thème">🌙</button>
+    <a href="/connexion" class="pub-btn pub-btn-primary">Connexion</a>
+  </div>
+</header>
+
+<!-- ══ CONTENU PRINCIPAL ════════════════════════════════════════════ -->
+<div class="scanner-page">
+
+  <div class="home-card">
+
+    <!-- En-tête bleu IUE -->
+    <div class="home-card-header">
+      <h4><i class="fas fa-qrcode"></i>Scanner votre QR Code</h4>
+    </div>
+
+    <div class="home-card-body">
+
+      <p class="scanner-lead">
+        Présentez votre QR code personnel face à la caméra<br>
+        pour enregistrer votre présence
+      </p>
+
+      <!-- ── Zone caméra ────────────────────────────────────────── -->
+      <div class="scanner-container">
+
+        <!-- Vidéo (id attendu par scanner.js) -->
+        <video id="camera-feed" playsinline autoplay muted></video>
+        <!-- Canvas caché : capture les frames envoyées à Python -->
+        <canvas id="scan-canvas" style="display:none;"></canvas>
+
+        <!-- Gradient haut/bas -->
+        <div class="scanner-overlay-gradient"></div>
+
+        <!-- Cadre animé IUE (coins + laser) -->
+        <div class="scan-frame-box">
+          <div class="sf-corner sf-tl"></div>
+          <div class="sf-corner sf-tr"></div>
+          <div class="sf-corner sf-bl"></div>
+          <div class="sf-corner sf-br"></div>
+          <div class="scan-laser"></div>
+        </div>
+
+        <!-- Placeholder avant démarrage caméra -->
+        <div id="cam-placeholder" class="cam-placeholder">
+          <div class="cam-placeholder-icon">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.2" style="opacity:.5;">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="cam-placeholder-text" id="cam-placeholder-text">
+            Démarrage de la caméra…
+          </div>
+        </div>
+
+        <!-- Overlay résultat (animation sur la vidéo) -->
+        <div id="result-overlay" class="result-overlay"></div>
+
+      </div><!-- /scanner-container -->
+
+      <!-- Indicateur temps réel (point + texte) -->
+      <div class="scan-live-bar">
+        <div class="sli-dot" id="sli-dot"></div>
+        <span id="sli-label">Démarrage…</span>
+      </div>
+
+      <!-- ── Carte résultat (sous la vidéo après un scan réussi) ── -->
+      <div id="result-card">
+        <div id="result-card-header" class="result-card-header">
+          <h5 id="result-card-title">
+            <i class="fas fa-check-circle"></i>Présence enregistrée
+          </h5>
+        </div>
+        <div class="result-card-body">
+          <div id="scan-result"></div>
+          <button id="scan-again">
+            <i class="fas fa-redo"></i>Scanner à nouveau
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /home-card-body -->
+  </div><!-- /home-card -->
+
+</div><!-- /scanner-page -->
+
+<!-- ══ BARRE DE STATUT ══════════════════════════════════════════════ -->
+<div class="scanner-statusbar">
+  <div class="statusbar-left">
+    <span class="status-dot" id="status-dot"></span>
+    <span id="scanner-status-text">Initialisation…</span>
+  </div>
+  <div class="statusbar-right">
+    <span id="kiosk-date"></span>
+    <span id="kiosk-clock" style="font-family:var(--font-mono,'JetBrains Mono',monospace); font-weight:600;">--:--:--</span>
+  </div>
+</div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/scanner.js"></script>
+
+<script>
+/* ── Horloge + date ── */
+(function () {
+  const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const mois  = ['janvier','février','mars','avril','mai','juin',
+                  'juillet','août','septembre','octobre','novembre','décembre'];
+  function tick() {
+    const now    = new Date();
+    const dateEl = document.getElementById('kiosk-date');
+    const clkEl  = document.getElementById('kiosk-clock');
+    if (dateEl) dateEl.textContent =
+      jours[now.getDay()] + ' ' + now.getDate() + ' ' +
+      mois[now.getMonth()] + ' ' + now.getFullYear() + ' —';
+    if (clkEl) clkEl.textContent =
+      now.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+/* ── Bouton "Scanner à nouveau" → reprendre le scan immédiatement ── */
+document.getElementById('scan-again')?.addEventListener('click', function () {
+  document.getElementById('result-card').style.display = 'none';
+  if (typeof paused !== 'undefined') {
+    paused = false;
+    if (typeof overlayTimer !== 'undefined' && overlayTimer) {
+      clearTimeout(overlayTimer);
+      overlayTimer = null;
+    }
+    if (typeof _setScanActivity === 'function') _setScanActivity('active');
+    if (typeof setStatus === 'function') setStatus('active', 'Présentez votre badge QR devant la caméra');
+    const ov = document.getElementById('result-overlay');
+    if (ov) { ov.classList.remove('visible'); ov.innerHTML = ''; }
+  }
+});
+</script>
+
+</body>
+</html>

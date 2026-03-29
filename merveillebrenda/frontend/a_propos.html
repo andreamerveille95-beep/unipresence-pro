@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>À propos — UniPresence Pro</title>
+  <script>const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+  <style>
+    /* ── Header public ── */
+    .pub-header {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 1px 8px rgba(0,0,0,.05);
+    }
+    html.dark .pub-header { background: rgba(10,15,30,.95); }
+
+    .pub-header-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .pub-header-brand-text strong {
+      display: block; font-family: 'Playfair Display', serif;
+      font-size: 1rem; color: var(--bleu-iue);
+    }
+    html.dark .pub-header-brand-text strong { color: var(--or-iue); }
+    .pub-header-brand-text small { font-size: .7rem; color: var(--text-muted); }
+
+    .pub-header-nav { display: flex; align-items: center; gap: 4px; }
+
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 7px; font-size: .83rem;
+      font-weight: 500; cursor: pointer; border: none;
+      text-decoration: none; transition: all .18s; font-family: var(--font-body);
+      background: transparent; color: var(--text-muted);
+    }
+    .nav-btn:hover { background: var(--bg-section); color: var(--text-primary); }
+    .nav-btn.active { background: var(--bg-section); color: var(--bleu-iue); font-weight: 600; }
+    html.dark .nav-btn.active { color: var(--or-iue); }
+
+    .btn-primary-sm {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 7px; font-size: .83rem; font-weight: 600;
+      background: var(--bleu-iue); color: #fff; text-decoration: none;
+      transition: all .18s; border: none; cursor: pointer;
+    }
+    .btn-primary-sm:hover { opacity: .88; transform: translateY(-1px); }
+
+    .theme-btn {
+      width: 34px; height: 34px; border-radius: 7px;
+      border: 1px solid var(--border-color); background: var(--bg-card);
+      color: var(--text-muted); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .9rem; transition: all .18s; margin-left: 8px;
+    }
+    .theme-btn:hover { color: var(--text-primary); border-color: var(--bleu-iue); }
+
+    /* ── Layout ── */
+    .pub-main { max-width: 800px; margin: 0 auto; padding: 52px 24px 80px; }
+
+    /* ── Hero ── */
+    .about-hero {
+      display: flex; align-items: center; gap: 24px;
+      padding: 36px 32px; margin-bottom: 24px;
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); box-shadow: var(--shadow-card);
+    }
+    .about-hero-icon {
+      width: 64px; height: 64px; border-radius: 14px; flex-shrink: 0;
+      background: var(--gradient-bleu);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.6rem;
+    }
+    .about-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem; color: var(--text-primary); margin-bottom: 4px;
+    }
+    .about-hero-sub { font-size: .9rem; color: var(--text-muted); margin-bottom: 10px; }
+    .version-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--bg-section); border: 1px solid var(--border-color);
+      border-radius: 20px; padding: 4px 12px; font-size: .78rem; color: var(--text-muted);
+    }
+    .version-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--vert-presence); flex-shrink: 0; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); box-shadow: var(--shadow-card);
+      padding: 28px 28px 24px; margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-weight: 600; margin-bottom: 18px;
+      color: var(--text-primary); display: flex; align-items: center; gap: 10px;
+    }
+    .card-title-icon {
+      width: 30px; height: 30px; border-radius: 7px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .82rem; color: #fff;
+    }
+    .card-title-icon.blue  { background: var(--bleu-iue); }
+    .card-title-icon.gold  { background: var(--or-iue); color: var(--bleu-iue); }
+    .card-title-icon.green { background: var(--vert-presence); }
+    .card-title-icon.slate { background: #64748B; }
+
+    /* ── Description text ── */
+    .text-body { line-height: 1.75; font-size: .9rem; color: var(--text-primary); }
+    .text-body + .text-body { margin-top: 10px; }
+    .text-muted-sm { font-size: .87rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── Departments ── */
+    .dept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+    .dept-card {
+      padding: 16px 18px; border-radius: var(--radius-sm);
+      border-left: 3px solid transparent;
+    }
+    .dept-card.esit {
+      background: var(--badge-esit-bg);
+      border-left-color: var(--bleu-iue);
+    }
+    .dept-card.eme  {
+      background: var(--badge-eme-bg);
+      border-left-color: #7C3AED;
+    }
+    .dept-card-label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; margin-bottom: 5px;
+    }
+    .dept-card.esit .dept-card-label { color: var(--badge-esit-color); }
+    .dept-card.eme  .dept-card-label { color: var(--badge-eme-color); }
+    .dept-card-name { font-weight: 600; font-size: .88rem; color: var(--text-primary); margin-bottom: 3px; }
+    .dept-card-sub  { font-size: .8rem; color: var(--text-muted); }
+
+    .meta-row {
+      display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+      padding-top: 14px; border-top: 1px solid var(--border-color);
+      font-size: .84rem; color: var(--text-muted);
+    }
+    .meta-row a { color: var(--bleu-iue); text-decoration: none; }
+    html.dark .meta-row a { color: var(--or-iue); }
+    .meta-row a:hover { text-decoration: underline; }
+    .meta-row i { width: 14px; text-align: center; margin-right: 4px; }
+
+    /* ── Features list ── */
+    .feat-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .feat-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      background: var(--bg-section); font-size: .85rem;
+    }
+    .feat-item i {
+      width: 16px; text-align: center; color: var(--bleu-iue); font-size: .8rem; flex-shrink: 0;
+    }
+    html.dark .feat-item i { color: var(--or-iue); }
+
+    /* ── Stack ── */
+    .stack-list { display: flex; flex-direction: column; gap: 8px; }
+    .stack-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 12px 14px; background: var(--bg-section); border-radius: var(--radius-sm);
+    }
+    .stack-icon {
+      width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; color: #fff;
+    }
+    .stack-icon.py   { background: #3B82F6; }
+    .stack-icon.db   { background: #64748B; }
+    .stack-icon.fe   { background: #F59E0B; color: #1e1e1e; }
+    .stack-icon.auth { background: #EF4444; }
+    .stack-icon.qr   { background: #1A3A6B; }
+    .stack-icon.pdf  { background: #DC2626; }
+    .stack-name  { font-size: .875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+    .stack-desc  { font-size: .8rem; color: var(--text-muted); }
+
+    /* ── Footer ── */
+    .pub-footer {
+      text-align: center; padding: 28px 0 0;
+      color: var(--text-muted); font-size: .82rem; border-top: 1px solid var(--border-color);
+      margin-top: 8px;
+    }
+    .pub-footer span {
+      font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+      display: block; margin-top: 6px; color: var(--bleu-iue);
+    }
+    html.dark .pub-footer span { color: var(--or-iue); }
+
+    @media (max-width: 600px) {
+      .dept-grid, .feat-grid { grid-template-columns: 1fr; }
+      .pub-header { padding: 0 16px; }
+      .about-hero { flex-direction: column; text-align: center; padding: 28px 20px; }
+      .card { padding: 20px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="pub-header">
+    <a href="/" class="pub-header-brand">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="36" height="36"
+             style="border-radius:8px;object-fit:contain;" onerror="this.style.display='none'">
+      </picture>
+      <div class="pub-header-brand-text">
+        <strong>UniPresence Pro</strong>
+        <small>IUE Douala</small>
+      </div>
+    </a>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <nav class="pub-header-nav">
+        <a href="/scanner" class="nav-btn"><i class="fa-solid fa-camera"></i> Scanner</a>
+        <a href="/a_propos" class="nav-btn active"><i class="fa-solid fa-circle-info"></i> À propos</a>
+      </nav>
+      <button class="theme-btn" id="themeToggle" aria-label="Changer le thème">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+      <a href="/connexion" class="btn-primary-sm" style="margin-left:8px;">
+        <i class="fa-solid fa-right-to-bracket"></i> Connexion
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════ CONTENU ═══════════ -->
+  <main class="pub-main">
+
+    <!-- Hero -->
+    <div class="about-hero" data-reveal>
+      <div class="about-hero-icon">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+      <div>
+        <h1>UniPresence Pro</h1>
+        <div class="about-hero-sub">Système de gestion des présences des enseignants — IUE Douala</div>
+        <div class="version-pill">
+          <span class="version-dot"></span>
+          Version 1.0.0 &nbsp;·&nbsp; Mars 2025
+        </div>
+      </div>
+    </div>
+
+    <!-- À propos de l'application -->
+    <div class="card" data-reveal>
+      <h2 class="card-title">
+        <span class="card-title-icon blue"><i class="fa-solid fa-circle-info"></i></span>
+        À propos de l'application
+      </h2>
+      <p class="text-body">
+        <strong>UniPresence Pro</strong> est un système de gestion des présences conçu spécifiquement pour
+        l'Institut Universitaire de l'Entrepreneuriat (IUE) de Douala, Cameroun. Il permet aux administrateurs
+        de gérer efficacement le suivi des présences des enseignants.
+      </p>
+      <p class="text-muted-sm" style="margin-top:10px;">
+        L'application utilise des QR codes uniques par enseignant pour un pointage rapide et fiable.
+        Elle génère des rapports détaillés exportables en PDF et CSV, et offre une interface moderne
+        adaptée au personnel administratif.
+      </p>
+    </div>
+
+    <!-- IUE -->
+    <div class="card" data-reveal>
+      <h2 class="card-title">
+        <span class="card-title-icon gold"><i class="fa-solid fa-landmark"></i></span>
+        Institut Universitaire de l'Entrepreneuriat
+      </h2>
+      <div class="dept-grid">
+        <div class="dept-card esit">
+          <div class="dept-card-label">ESIT</div>
+          <div class="dept-card-name">École Supérieure d'Ingénierie &amp; de Technologie</div>
+          <div class="dept-card-sub">Sciences &amp; Technologies</div>
+        </div>
+        <div class="dept-card eme">
+          <div class="dept-card-label">EME</div>
+          <div class="dept-card-name">École de Management &amp; d'Entrepreneuriat</div>
+          <div class="dept-card-sub">Management &amp; Entrepreneuriat</div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span><i class="fa-solid fa-location-dot"></i>Douala, Cameroun</span>
+        <span><i class="fa-solid fa-globe"></i><a href="https://iuegroup.org" target="_blank" rel="noopener">iuegroup.org</a></span>
+      </div>
+    </div>
+
+    <!-- Fonctionnalités -->
+    <div class="card" data-reveal>
+      <h2 class="card-title">
+        <span class="card-title-icon green"><i class="fa-solid fa-list-check"></i></span>
+        Fonctionnalités
+      </h2>
+      <div class="feat-grid">
+        <div class="feat-item"><i class="fa-solid fa-qrcode"></i> Génération de QR codes par enseignant</div>
+        <div class="feat-item"><i class="fa-solid fa-camera"></i> Scanner QR via caméra temps réel</div>
+        <div class="feat-item"><i class="fa-solid fa-chart-bar"></i> Tableau de bord avec statistiques</div>
+        <div class="feat-item"><i class="fa-solid fa-calendar-days"></i> Gestion des séances (CM, TD, TP, Exam)</div>
+        <div class="feat-item"><i class="fa-solid fa-file-lines"></i> Rapports filtrables — PDF &amp; CSV</div>
+        <div class="feat-item"><i class="fa-solid fa-clock"></i> Suivi arrivées, départs et retards</div>
+        <div class="feat-item"><i class="fa-solid fa-circle-half-stroke"></i> Mode sombre / clair mémorisé</div>
+        <div class="feat-item"><i class="fa-solid fa-mobile-screen"></i> Interface responsive mobile</div>
+        <div class="feat-item"><i class="fa-solid fa-lock"></i> Authentification bcrypt + sessions</div>
+      </div>
+    </div>
+
+    <!-- Stack technique -->
+    <div class="card" data-reveal>
+      <h2 class="card-title">
+        <span class="card-title-icon slate"><i class="fa-solid fa-layer-group"></i></span>
+        Stack technique
+      </h2>
+      <div class="stack-list">
+        <div class="stack-row">
+          <div class="stack-icon py"><i class="fa-brands fa-python"></i></div>
+          <div>
+            <div class="stack-name">Backend</div>
+            <div class="stack-desc">Python 3.10+ · http.server natif · Sans framework</div>
+          </div>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon db"><i class="fa-solid fa-database"></i></div>
+          <div>
+            <div class="stack-name">Base de données</div>
+            <div class="stack-desc">SQLite3 · Mode WAL · Zéro installation</div>
+          </div>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon fe"><i class="fa-brands fa-js"></i></div>
+          <div>
+            <div class="stack-name">Frontend</div>
+            <div class="stack-desc">HTML5 · CSS3 · JavaScript ES6+ Vanilla · Zéro framework</div>
+          </div>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon auth"><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <div class="stack-name">Authentification</div>
+            <div class="stack-desc">Sessions UUID4 · bcrypt cost 12 · Cookies HttpOnly</div>
+          </div>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon qr"><i class="fa-solid fa-qrcode"></i></div>
+          <div>
+            <div class="stack-name">QR Codes</div>
+            <div class="stack-desc">qrcode[pil] · Pillow · OpenCV (décodage serveur)</div>
+          </div>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon pdf"><i class="fa-solid fa-file-pdf"></i></div>
+          <div>
+            <div class="stack-name">Export PDF</div>
+            <div class="stack-desc">ReportLab · Pillow</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="pub-footer" data-reveal>
+      © 2025 Institut Universitaire de l'Entrepreneuriat — Douala, Cameroun
+      <span>UniPresence Pro v1.0.0</span>
+    </div>
+
+  </main>
+
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/animations.js"></script>
+  <script>
+    // Thème toggle
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+      if (window.ThemeManager) window.ThemeManager.toggle();
+      const isDark = document.documentElement.classList.contains('dark');
+      btn.querySelector('i').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    });
+    // Icône initiale
+    (function() {
+      const isDark = document.documentElement.classList.contains('dark');
+      btn.querySelector('i').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    })();
+  </script>
+</body>
+</html>

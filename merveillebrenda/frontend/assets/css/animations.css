@@ -1,0 +1,620 @@
+/* ==========================================================================
+   animations.css — UniPresence Pro | Keyframes & Classes d'animation
+   ========================================================================== */
+
+/* ==========================================================================
+   @KEYFRAMES — TOUTES LES ANIMATIONS
+   ========================================================================== */
+
+/* --- Fade In --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- Fade In Up --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Fade In Down --- */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Fade In Left --- */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Fade In Right --- */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Fade Out --- */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* --- Shimmer (skeleton loading) --- */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* --- Pulse Badge (présent) --- */
+@keyframes pulse-badge {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* --- Pulse Glow (halo lumineux) --- */
+@keyframes pulse-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.35); }
+  70%  { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+/* --- Laser Scan (scanner) --- */
+@keyframes laser-scan {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  48% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(218px);
+    opacity: 0.7;
+  }
+  50.1% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  51% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(218px);
+    opacity: 1;
+  }
+}
+
+/* --- Border Dance (coins cadre scan) --- */
+@keyframes border-dance {
+  0%   { opacity: 0.6; transform: scale(0.97); }
+  50%  { opacity: 1;   transform: scale(1.03); }
+  100% { opacity: 0.6; transform: scale(0.97); }
+}
+
+/* --- Flash Success (scan réussi) --- */
+@keyframes flash-success {
+  0%   { background-color: transparent; }
+  25%  { background-color: rgba(22, 163, 74, 0.15); }
+  75%  { background-color: rgba(22, 163, 74, 0.08); }
+  100% { background-color: transparent; }
+}
+
+/* --- Shake (erreur scan) --- */
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-6px); }
+  30%  { transform: translateX(6px); }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px); }
+  75%  { transform: translateX(-2px); }
+  90%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+/* --- Spin (spinner chargement) --- */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Spin Reverse --- */
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* --- Slide In Up (toast entrant) --- */
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --- Slide Out Down (toast sortant) --- */
+@keyframes slideOutDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* --- Slide In Left (sidebar mobile) --- */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* --- Slide In Right --- */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* --- Bar Grow (graphique barres) --- */
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* --- Path Reveal (tracé courbe SVG) --- */
+@keyframes pathReveal {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* --- Zoom In --- */
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- Zoom Out --- */
+@keyframes zoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+/* --- Bounce In --- */
+@keyframes bounceIn {
+  0%   { transform: scale(0.3);  opacity: 0; }
+  50%  { transform: scale(1.05); opacity: 0.9; }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* --- Float (animation lévitation douce) --- */
+@keyframes float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+/* --- Wiggle (notification d'attention) --- */
+@keyframes wiggle {
+  0%,  100% { transform: rotate(0deg); }
+  20%        { transform: rotate(-6deg); }
+  40%        { transform: rotate(6deg); }
+  60%        { transform: rotate(-4deg); }
+  80%        { transform: rotate(4deg); }
+}
+
+/* --- Count Up (prévu pour JS CountUp — classe CSS seule) --- */
+/* Pas de keyframe natif — le compteur est animé via JS.
+   La classe .count-up déclenche l'animation JS. */
+
+/* --- Progress Fill (barre de progression) --- */
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-value, 100%);
+  }
+}
+
+/* --- Ripple (bouton effet vague) --- */
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   CLASSES UTILITAIRES D'ANIMATION
+   ========================================================================== */
+
+/* --- Fade In --- */
+.animate-fade-in {
+  animation: fadeIn 400ms ease forwards;
+}
+
+/* --- Fade In Up --- */
+.animate-fade-in-up {
+  animation: fadeInUp 450ms ease forwards;
+}
+
+/* --- Fade In Down --- */
+.animate-fade-in-down {
+  animation: fadeInDown 450ms ease forwards;
+}
+
+/* --- Fade In Left --- */
+.animate-fade-in-left {
+  animation: fadeInLeft 450ms ease forwards;
+}
+
+/* --- Fade In Right --- */
+.animate-fade-in-right {
+  animation: fadeInRight 450ms ease forwards;
+}
+
+/* --- Zoom In --- */
+.animate-zoom-in {
+  animation: zoomIn 350ms ease forwards;
+}
+
+/* --- Bounce In --- */
+.animate-bounce-in {
+  animation: bounceIn 500ms ease forwards;
+}
+
+/* --- Float --- */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* --- Wiggle --- */
+.animate-wiggle {
+  animation: wiggle 600ms ease;
+}
+
+/* --- Spin continu --- */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ==========================================================================
+   DÉLAIS D'ANIMATION (stagger)
+   ========================================================================== */
+.delay-100  { animation-delay: 100ms; }
+.delay-150  { animation-delay: 150ms; }
+.delay-200  { animation-delay: 200ms; }
+.delay-300  { animation-delay: 300ms; }
+.delay-400  { animation-delay: 400ms; }
+.delay-500  { animation-delay: 500ms; }
+.delay-600  { animation-delay: 600ms; }
+.delay-700  { animation-delay: 700ms; }
+.delay-800  { animation-delay: 800ms; }
+.delay-1000 { animation-delay: 1000ms; }
+
+/* ==========================================================================
+   REVEAL — INTERSECTION OBSERVER
+   ========================================================================== */
+
+/* État initial : invisible */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+[data-reveal="left"] {
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+[data-reveal="right"] {
+  opacity: 0;
+  transform: translateX(18px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+[data-reveal="scale"] {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+[data-reveal="fade"] {
+  opacity: 0;
+  transform: none;
+  transition: opacity 500ms ease;
+}
+
+/* État final : visible (classe ajoutée par JS IntersectionObserver) */
+[data-reveal].revealed,
+[data-reveal="left"].revealed,
+[data-reveal="right"].revealed,
+[data-reveal="scale"].revealed,
+[data-reveal="fade"].revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   ANIMATIONS ÉLÉMENTS SPÉCIFIQUES
+   ========================================================================== */
+
+/* Bouton — hover et active */
+.btn:hover {
+  transform: translateY(-1px) scale(1.01);
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.97);
+  transition: transform 80ms ease;
+}
+
+/* Effet ripple sur bouton */
+.btn {
+  overflow: hidden;
+}
+
+.btn .ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  animation: ripple 500ms ease forwards;
+  transform: scale(0);
+}
+
+/* Card — hover */
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  transition: transform 250ms ease, box-shadow 250ms ease;
+}
+
+/* Card désactivation hover (si nécessaire) */
+.card.no-hover:hover {
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+/* Nav link hover */
+.nav-link {
+  transition: background 150ms ease, color 150ms ease;
+}
+
+/* Badge présent pulsation */
+.badge-present {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+/* Badge présent — halo */
+.badge-present--glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-section) 25%,
+    rgba(200, 168, 75, 0.08) 50%,
+    var(--bg-section) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Spinner */
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Toast entrée */
+.toast {
+  animation: slideInUp 300ms ease forwards;
+}
+
+/* Toast sortie */
+.toast.dismissing {
+  animation: slideOutDown 300ms ease forwards;
+}
+
+/* Barres graphique SVG */
+.chart-bar {
+  transform-origin: bottom center;
+  animation: barGrow 700ms ease forwards;
+}
+
+/* Courbe SVG tracé progressif */
+.chart-line-path {
+  animation: pathReveal 1s ease forwards;
+}
+
+/* Icône notification wiggle */
+.notif-btn.has-new {
+  animation: wiggle 600ms ease;
+}
+
+/* ==========================================================================
+   TRANSITION THÈME (mode clair/sombre)
+   Mode activé temporairement via JS : document.documentElement.classList.add('theme-transitioning')
+   ========================================================================== */
+.theme-transitioning * {
+  transition-property: background-color, border-color, color, box-shadow, fill, stroke !important;
+  transition-duration: 300ms !important;
+  transition-timing-function: ease !important;
+}
+
+/* ==========================================================================
+   RÉDUCTION DE MOUVEMENT (accessibilité)
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .badge-present {
+    animation: none;
+  }
+
+  .skeleton {
+    animation: none;
+    background: var(--bg-section);
+  }
+
+  .spinner {
+    animation-duration: 1.5s;
+  }
+
+  .scan-laser {
+    animation: none;
+    top: 50%;
+  }
+
+  .animate-float {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   ANIMATIONS PAGE — UTILITAIRES STAGGER ENFANTS
+   ========================================================================== */
+
+/* Stagger automatique pour listes (les enfants s'animent en décalé) */
+.stagger-children > *:nth-child(1)  { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2)  { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3)  { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4)  { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5)  { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6)  { animation-delay: 300ms; }
+.stagger-children > *:nth-child(7)  { animation-delay: 360ms; }
+.stagger-children > *:nth-child(8)  { animation-delay: 420ms; }
+.stagger-children > *:nth-child(n+9) { animation-delay: 480ms; }
+
+/* Stagger KPI cards */
+.kpi-grid.animate > .kpi-card {
+  animation: fadeInUp 450ms ease forwards;
+  opacity: 0;
+}
+
+.kpi-grid.animate > .kpi-card:nth-child(1) { animation-delay: 0ms; }
+.kpi-grid.animate > .kpi-card:nth-child(2) { animation-delay: 80ms; }
+.kpi-grid.animate > .kpi-card:nth-child(3) { animation-delay: 160ms; }
+.kpi-grid.animate > .kpi-card:nth-child(4) { animation-delay: 240ms; }
+
+/* Stagger QR cards */
+.qr-grid.animate > .qr-card {
+  animation: fadeInUp 400ms ease forwards;
+  opacity: 0;
+}
+
+.qr-grid.animate > .qr-card:nth-child(1)  { animation-delay: 0ms; }
+.qr-grid.animate > .qr-card:nth-child(2)  { animation-delay: 50ms; }
+.qr-grid.animate > .qr-card:nth-child(3)  { animation-delay: 100ms; }
+.qr-grid.animate > .qr-card:nth-child(4)  { animation-delay: 150ms; }
+.qr-grid.animate > .qr-card:nth-child(5)  { animation-delay: 200ms; }
+.qr-grid.animate > .qr-card:nth-child(6)  { animation-delay: 250ms; }
+.qr-grid.animate > .qr-card:nth-child(7)  { animation-delay: 300ms; }
+.qr-grid.animate > .qr-card:nth-child(8)  { animation-delay: 350ms; }
+.qr-grid.animate > .qr-card:nth-child(n+9) { animation-delay: 400ms; }

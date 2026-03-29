@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Séances — UniPresence Pro | IUE</title>
+
+  <!-- Anti-flash dark mode -->
+  <script>
+    const t = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ─── Toolbar ─── */
+    .toolbar {
+      background: var(--bg-card,#fff);
+      border: 1px solid var(--border,#E2E8F0);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .filter-control {
+      padding: .5rem .75rem;
+      border: 1.5px solid var(--border,#E2E8F0);
+      border-radius: 8px;
+      font-size: .83rem;
+      background: var(--bg,#F8FAFC);
+      color: var(--text,#0F172A);
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .filter-control:focus { border-color: var(--bleu-iue, #1A3A6B); }
+    .toolbar-spacer { flex: 1; }
+
+    /* ─── Boutons ─── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: .5rem 1rem; border-radius: 8px;
+      font-size: .83rem; font-weight: 600; cursor: pointer; border: none;
+      text-decoration: none; font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .btn-primary   { background: var(--bleu-iue, #1A3A6B); color: #fff; }
+    .btn-primary:hover   { background: #2D5AA8; }
+    .btn-secondary { background: transparent; border: 1.5px solid var(--border,#E2E8F0); color: var(--text,#0F172A); }
+    .btn-secondary:hover { background: var(--border,#E2E8F0); }
+    .btn-danger    { background: transparent; border: 1.5px solid #FECACA; color: #DC2626; }
+    .btn-danger:hover    { background: #FEF2F2; }
+    .btn-sm { padding: .28rem .6rem; font-size: .76rem; }
+    .btn-warning { background: transparent; border: 1.5px solid #FED7AA; color: #EA580C; }
+    .btn-warning:hover { background: #FFF7ED; }
+
+    /* ─── Vue calendrier (jour courant) ─── */
+    .calendar-card {
+      background: var(--bg-card,#fff);
+      border: 1px solid var(--border,#E2E8F0);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .calendar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text,#0F172A);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .calendar-slots {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 0;
+      position: relative;
+    }
+    .time-slot {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
+      color: var(--text-muted,#64748B);
+      padding: .4rem 0;
+      border-top: 1px solid var(--border,#E2E8F0);
+      text-align: right;
+      padding-right: 10px;
+      line-height: 1;
+    }
+    .event-area {
+      border-top: 1px solid var(--border,#E2E8F0);
+      min-height: 38px;
+      padding: 3px 0;
+      position: relative;
+    }
+    .seance-block {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(26,58,107,.08);
+      border-left: 3px solid var(--bleu-iue, #1A3A6B);
+      border-radius: 0 8px 8px 0;
+      padding: .35rem .65rem;
+      margin: 2px 4px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .seance-block:hover { background: rgba(26,58,107,.15); }
+    .seance-block.cm  { border-left-color: var(--bleu-iue, #1A3A6B); background: rgba(26,58,107,.08); }
+    .seance-block.td  { border-left-color: #C8A84B; background: rgba(200,168,75,.1); }
+    .seance-block.tp  { border-left-color: #16A34A; background: rgba(22,163,74,.1); }
+    .seance-block.exam{ border-left-color: #DC2626; background: rgba(220,38,38,.1); }
+    .seance-block-title { font-size: .82rem; font-weight: 600; color: var(--text,#0F172A); }
+    .seance-block-meta  { font-size: .72rem; color: var(--text-muted,#64748B); }
+
+    /* ─── Table ─── */
+    .table-card {
+      background: var(--bg-card,#fff);
+      border: 1px solid var(--border,#E2E8F0);
+      border-radius: 14px;
+      overflow: auto;
+      margin-bottom: 1.5rem;
+    }
+    .data-table {
+      width: 100%; border-collapse: collapse; font-size: .84rem;
+    }
+    .data-table th {
+      background: var(--bg,#F8FAFC); padding: .75rem 1rem; text-align: left;
+      font-size: .74rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--text-muted,#64748B); border-bottom: 1px solid var(--border,#E2E8F0);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: .75rem 1rem; border-bottom: 1px solid var(--border,#E2E8F0);
+      color: var(--text,#0F172A); vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(26,58,107,.025); }
+
+    /* ─── Badges ─── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 9px; border-radius: 999px; font-size: .72rem; font-weight: 600;
+    }
+    .badge-cm     { background: rgba(26,58,107,.1);  color: var(--bleu-iue, #1A3A6B); }
+    .badge-td     { background: rgba(200,168,75,.15); color: #9A7A2A; }
+    .badge-tp     { background: rgba(22,163,74,.1);   color: #16A34A; }
+    .badge-exam   { background: rgba(220,38,38,.1);   color: #DC2626; }
+    .badge-planif { background: #E2E8F0;               color: #64748B; }
+    .badge-actif  { background: rgba(22,163,74,.1);   color: #16A34A; }
+    .badge-termine{ background: rgba(100,116,139,.1); color: #64748B; }
+    .badge-annule { background: rgba(220,38,38,.1);   color: #DC2626; }
+
+    /* ─── Modal ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 1000; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-card,#fff); border-radius: 16px; padding: 2rem;
+      width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
+      position: relative; box-shadow: 0 25px 60px rgba(0,0,0,.25);
+      animation: modalIn .25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform: scale(.95) translateY(10px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    .modal-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; margin-bottom:1.25rem; color:var(--text,#0F172A); }
+    .modal-close { position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-muted,#64748B); }
+    .modal-close:hover { color:var(--text,#0F172A); }
+    .modal-footer { display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border,#E2E8F0); }
+    .form-group  { margin-bottom:.9rem; }
+    .form-label  { display:block; font-size:.82rem; font-weight:600; margin-bottom:.35rem; color:var(--text,#0F172A); }
+    .form-control { width:100%; padding:.6rem .85rem; border:1.5px solid var(--border,#E2E8F0); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.88rem; background:var(--bg,#F8FAFC); color:var(--text,#0F172A); outline:none; transition:border-color .2s; }
+    .form-control:focus { border-color: var(--bleu-iue, #1A3A6B); }
+    .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+
+    /* ─── Statut indicator ─── */
+    .statut-dot {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;
+    }
+
+    /* ─── Dark mode overrides ─── */
+    html.dark .btn-primary:hover    { background: #2D5AA8; }
+    html.dark .btn-danger           { border-color: rgba(220,38,38,.4); color: #F87171; }
+    html.dark .btn-danger:hover     { background: rgba(220,38,38,.12); }
+    html.dark .btn-warning          { border-color: rgba(234,88,12,.4); color: #FB923C; }
+    html.dark .btn-warning:hover    { background: rgba(234,88,12,.12); }
+
+    html.dark .seance-block            { background: rgba(200,168,75,.08); border-left-color: var(--or-iue, #C8A84B); }
+    html.dark .seance-block:hover      { background: rgba(200,168,75,.16); }
+    html.dark .seance-block.cm         { border-left-color: var(--or-iue, #C8A84B); background: rgba(200,168,75,.08); }
+    html.dark .seance-block.td         { border-left-color: #C8A84B; background: rgba(200,168,75,.1); }
+    html.dark .seance-block.tp         { border-left-color: #22C55E; background: rgba(34,197,94,.1); }
+    html.dark .seance-block.exam       { border-left-color: #EF4444; background: rgba(239,68,68,.1); }
+
+    html.dark .badge-cm     { background: rgba(200,168,75,.15); color: #C8A84B; }
+    html.dark .badge-td     { background: rgba(200,168,75,.15); color: #C8A84B; }
+    html.dark .badge-tp     { background: rgba(34,197,94,.12);  color: #22C55E; }
+    html.dark .badge-exam   { background: rgba(239,68,68,.12);  color: #F87171; }
+    html.dark .badge-planif { background: rgba(100,116,139,.2); color: #94A3B8; }
+    html.dark .badge-actif  { background: rgba(34,197,94,.12);  color: #22C55E; }
+    html.dark .badge-termine{ background: rgba(100,116,139,.15);color: #94A3B8; }
+    html.dark .badge-annule { background: rgba(239,68,68,.12);  color: #F87171; }
+
+    html.dark .data-table tr:hover td { background: rgba(200,168,75,.05); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="40" height="40" onerror="this.style.display='none'">
+      </picture>
+      <div>
+        <div style="font-weight:700;color:var(--or-iue);font-size:0.95rem;">UniPresence Pro</div>
+        <div style="font-size:0.7rem;color:var(--text-sidebar);opacity:0.7;">IUE Douala</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a href="/dashboard" class="nav-link"><i class="fa-solid fa-house nav-icon"></i> Tableau de bord</a>
+      <a href="/professeurs" class="nav-link"><i class="fa-solid fa-chalkboard-user nav-icon"></i> Enseignants</a>
+      <a href="/seances" class="nav-link active"><i class="fa-solid fa-calendar-days nav-icon"></i> Séances</a>
+      <div class="nav-section-title">Rapports</div>
+      <a href="/rapport" class="nav-link"><i class="fa-solid fa-chart-bar nav-icon"></i> Rapports</a>
+      <a href="/qr_codes" class="nav-link"><i class="fa-solid fa-qrcode nav-icon"></i> QR Codes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="admin-name" style="font-size:0.85rem;color:var(--text-sidebar);">Admin IUE</div>
+      <button onclick="(typeof api!=='undefined'?api.logout():Promise.resolve()).then(()=>window.location='/connexion')"
+              class="btn btn-ghost" style="margin-top:8px;width:100%;font-size:0.8rem;">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="burger-btn" id="burgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <h1 class="topbar-title">Séances</h1>
+      <div class="topbar-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Changer thème"><i class="fa-solid fa-moon"></i></button>
+        <div class="user-info" id="userInfo">Admin</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- ─── Toolbar filtres ─── -->
+      <div class="toolbar">
+        <input type="date" id="filter-date" class="filter-control" title="Filtrer par date">
+        <select id="filter-enseignant" class="filter-control" style="min-width:180px;">
+          <option value="">Tous les enseignants</option>
+        </select>
+        <select id="filter-statut" class="filter-control">
+          <option value="">Tous statuts</option>
+          <option value="planifiee">Planifiée</option>
+          <option value="en_cours">En cours</option>
+          <option value="terminee">Terminée</option>
+          <option value="annulee">Annulée</option>
+        </select>
+        <select id="filter-type" class="filter-control">
+          <option value="">Tous types</option>
+          <option value="CM">CM</option>
+          <option value="TD">TD</option>
+          <option value="TP">TP</option>
+          <option value="Examen">Examen</option>
+        </select>
+        <button class="btn btn-secondary" onclick="applyFilters()">🔍 Filtrer</button>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-primary" onclick="openModalCreate()">+ Nouvelle séance</button>
+      </div>
+
+      <!-- ─── Vue calendrier ─── -->
+      <div class="calendar-card">
+        <div class="calendar-title">
+          📅 Séances du <span id="cal-date-title">—</span>
+          <div style="margin-left:auto;display:flex;gap:.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="changeDate(-1)">‹ Veille</button>
+            <button class="btn btn-secondary btn-sm" onclick="goToday()">Aujourd'hui</button>
+            <button class="btn btn-secondary btn-sm" onclick="changeDate(1)">Lendemain ›</button>
+          </div>
+        </div>
+        <div class="calendar-slots" id="calendar-slots">
+          <!-- Rempli par JS -->
+        </div>
+      </div>
+
+      <!-- ─── Tableau séances ─── -->
+      <div class="table-card">
+        <div style="padding:.75rem 1rem;border-bottom:1px solid var(--border,#E2E8F0);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+          <span style="font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;color:var(--text);">
+            Liste des séances (<span id="seances-count">0</span>)
+          </span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Titre</th>
+              <th>Matière</th>
+              <th>Enseignant</th>
+              <th>Salle</th>
+              <th>Horaires</th>
+              <th>Type</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="seances-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ════ MODAL CRÉATION SÉANCE ════ -->
+<div class="modal-overlay" id="modal-seance">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-seance')">✕</button>
+    <h2 class="modal-title" id="modal-seance-title">Nouvelle séance</h2>
+    <form id="form-seance" novalidate>
+      <input type="hidden" id="seance-edit-id">
+
+      <div class="form-group">
+        <label class="form-label">Titre <span style="color:#DC2626">*</span></label>
+        <input type="text" id="s-titre" class="form-control" placeholder="Cours d'algorithmique avancée">
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Matière <span style="color:#DC2626">*</span></label>
+          <input type="text" id="s-matiere" class="form-control" placeholder="INFO301">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type <span style="color:#DC2626">*</span></label>
+          <select id="s-type" class="form-control">
+            <option value="CM">CM — Cours Magistral</option>
+            <option value="TD">TD — Travaux Dirigés</option>
+            <option value="TP">TP — Travaux Pratiques</option>
+            <option value="Examen">Examen</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Enseignant <span style="color:#DC2626">*</span></label>
+        <select id="s-enseignant" class="form-control">
+          <option value="">-- Choisir un enseignant --</option>
+        </select>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Salle</label>
+          <input type="text" id="s-salle" class="form-control" placeholder="Salle B12">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date <span style="color:#DC2626">*</span></label>
+          <input type="date" id="s-date" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Heure de début <span style="color:#DC2626">*</span></label>
+          <input type="time" id="s-heure-debut" class="form-control" value="08:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure de fin <span style="color:#DC2626">*</span></label>
+          <input type="time" id="s-heure-fin" class="form-control" value="10:00">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Statut</label>
+        <select id="s-statut" class="form-control">
+          <option value="planifiee">Planifiée</option>
+          <option value="en_cours">En cours</option>
+          <option value="terminee">Terminée</option>
+          <option value="annulee">Annulée</option>
+        </select>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-seance')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveSeance()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/animations.js"></script>
+
+<script>
+let allSeances     = [];
+let allEnseignants = [];
+let currentDate    = new Date();
+currentDate.setHours(0,0,0,0);
+
+const TYPE_COLORS = { CM:'cm', TD:'td', TP:'tp', Examen:'exam' };
+const STATUT_CLS  = { planifiee:'badge-planif', en_cours:'badge-actif', terminee:'badge-termine', annulee:'badge-annule' };
+const STATUT_LBL  = { planifiee:'Planifiée', en_cours:'En cours', terminee:'Terminée', annulee:'Annulée' };
+
+// Convertit une Date en "YYYY-MM-DD" selon l'heure LOCALE (pas UTC)
+function toLocalISO(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const j = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${j}`;
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // Date du jour par défaut dans filtre (heure locale)
+  const todayStr = toLocalISO(new Date());
+  document.getElementById('filter-date').value = todayStr;
+  document.getElementById('s-date').value      = todayStr;
+
+  await Promise.all([loadEnseignants(), loadSeances()]);
+  renderCalendar();
+});
+
+// ─── Enseignants ────────────────────────────────────────────────
+async function loadEnseignants() {
+  try {
+    if (typeof api !== 'undefined') {
+      try {
+        const resp = await api.getEnseignants();
+        allEnseignants = Array.isArray(resp) ? resp : (resp.enseignants || resp.data || []);
+      } catch(_) {}
+    }
+    if (!allEnseignants.length) {
+      allEnseignants = [
+        { id:1, prenom:'Jean', nom:'Mballa' },
+        { id:2, prenom:'Aline', nom:'Fotso' },
+        { id:3, prenom:'Paul', nom:'Nkemeni' },
+        { id:4, prenom:'Eric', nom:'Talla' },
+      ];
+    }
+    const selFilt = document.getElementById('filter-enseignant');
+    const selForm = document.getElementById('s-enseignant');
+    allEnseignants.forEach(e => {
+      const opt = `<option value="${e.id}">${e.prenom} ${e.nom}</option>`;
+      selFilt.innerHTML += opt;
+      selForm.innerHTML += opt;
+    });
+  } catch(err) { console.warn(err); }
+}
+
+// ─── Séances ────────────────────────────────────────────────────
+async function loadSeances() {
+  try {
+    if (typeof api !== 'undefined') {
+      try {
+        const resp = await api.getSeances();
+        allSeances = Array.isArray(resp) ? resp : (resp.seances || resp.data || []);
+      } catch(_) {}
+    }
+    if (!allSeances.length) {
+      const today = toLocalISO(new Date());
+      allSeances = [
+        { id:1, titre:'Algorithmique avancée',  matiere:'INFO301', enseignant_id:1, enseignant_nom:'Jean Mballa',   salle:'B12', date_seance:today, heure_debut:'08:00', heure_fin:'10:00', type_seance:'CM',    statut:'planifiee' },
+        { id:2, titre:'Marketing Digital',       matiere:'MKT201', enseignant_id:2, enseignant_nom:'Aline Fotso',    salle:'A08', date_seance:today, heure_debut:'10:30', heure_fin:'12:30', type_seance:'TD',    statut:'planifiee' },
+        { id:3, titre:'Bases de données',        matiere:'INFO402', enseignant_id:3, enseignant_nom:'Paul Nkemeni',  salle:'Labo3',date_seance:today, heure_debut:'14:00', heure_fin:'17:00', type_seance:'TP',    statut:'planifiee' },
+        { id:4, titre:'Examen Gestion de projet',matiere:'GES501', enseignant_id:4, enseignant_nom:'Eric Talla',    salle:'Amphi', date_seance:today, heure_debut:'08:00', heure_fin:'11:00', type_seance:'Examen',statut:'terminee' },
+      ];
+    }
+    renderTable(allSeances);
+  } catch(err) { console.warn(err); }
+}
+
+function applyFilters() {
+  const date = document.getElementById('filter-date').value;
+  const ens  = document.getElementById('filter-enseignant').value;
+  const stat = document.getElementById('filter-statut').value;
+  const type = document.getElementById('filter-type').value;
+
+  const filtered = allSeances.filter(s => {
+    return (!date || (s.date_seance || s.date) === date)
+        && (!ens  || String(s.enseignant_id) === String(ens))
+        && (!stat || s.statut === stat)
+        && (!type || (s.type_seance || s.type) === type);
+  });
+  renderTable(filtered);
+}
+
+function renderTable(items) {
+  document.getElementById('seances-count').textContent = items.length;
+  const tbody = document.getElementById('seances-tbody');
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">Aucune séance trouvée</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(s => {
+    const typeVal = s.type_seance || s.type || 'CM';
+    const dateVal = s.date_seance || s.date || '';
+    const typeCls = `badge-${typeVal.toLowerCase()}`;
+    const statCls = STATUT_CLS[s.statut] || 'badge-planif';
+    const statLbl = STATUT_LBL[s.statut] || s.statut;
+    return `
+      <tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;">${dateVal}</td>
+        <td style="font-weight:600;">${s.titre}</td>
+        <td style="color:var(--text-muted);font-size:.82rem;">${s.matiere}</td>
+        <td>${s.enseignant_nom || '—'}</td>
+        <td style="color:var(--text-muted);font-size:.82rem;">${s.salle || '—'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;">${s.heure_debut} – ${s.heure_fin}</td>
+        <td><span class="badge ${typeCls}">${typeVal}</span></td>
+        <td><span class="badge ${statCls}">${statLbl}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-secondary btn-sm" onclick="editSeance(${s.id})">✏️</button>
+          <button class="btn btn-warning btn-sm"   onclick="changerStatut(${s.id})">🔄</button>
+          <button class="btn btn-danger btn-sm"    onclick="deleteSeance(${s.id})">🗑️</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ─── Calendrier jour ────────────────────────────────────────────
+function renderCalendar() {
+  const dateStr = toLocalISO(currentDate);
+  document.getElementById('cal-date-title').textContent =
+    currentDate.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const slots    = document.getElementById('calendar-slots');
+  const HOURS    = ['07h', '08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h'];
+  const seancesDay = allSeances.filter(s => (s.date_seance || s.date) === dateStr);
+
+  let html = '';
+  HOURS.forEach((h, i) => {
+    const hourNum = 7 + i;
+    const events  = seancesDay.filter(s => {
+      const [startH] = (s.heure_debut || '00:00').split(':').map(Number);
+      return startH === hourNum;
+    });
+
+    html += `<div class="time-slot">${h}00</div><div class="event-area">`;
+    events.forEach(s => {
+      const typKey = (s.type_seance || s.type || 'CM').toLowerCase();
+      html += `
+        <div class="seance-block ${typKey}" onclick="editSeance(${s.id})">
+          <div>
+            <div class="seance-block-title">${s.titre}</div>
+            <div class="seance-block-meta">${s.enseignant_nom || ''} · ${s.salle || ''} · ${s.heure_debut}–${s.heure_fin}</div>
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  slots.innerHTML = html;
+}
+
+function changeDate(delta) {
+  currentDate.setDate(currentDate.getDate() + delta);
+  renderCalendar();
+}
+function goToday() {
+  currentDate = new Date();
+  currentDate.setHours(0,0,0,0);
+  renderCalendar();
+}
+
+// ─── Modal ──────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openModalCreate() {
+  document.getElementById('modal-seance-title').textContent = 'Nouvelle séance';
+  document.getElementById('seance-edit-id').value = '';
+  document.getElementById('form-seance').reset();
+  const today = toLocalISO(new Date());
+  document.getElementById('s-date').value = today;
+  openModal('modal-seance');
+}
+
+function editSeance(id) {
+  const s = allSeances.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('modal-seance-title').textContent = 'Modifier la séance';
+  document.getElementById('seance-edit-id').value  = s.id;
+  document.getElementById('s-titre').value         = s.titre;
+  document.getElementById('s-matiere').value       = s.matiere;
+  document.getElementById('s-type').value          = s.type_seance || s.type;
+  document.getElementById('s-enseignant').value    = s.enseignant_id;
+  document.getElementById('s-salle').value         = s.salle;
+  document.getElementById('s-date').value          = s.date_seance || s.date;
+  document.getElementById('s-heure-debut').value   = s.heure_debut;
+  document.getElementById('s-heure-fin').value     = s.heure_fin;
+  document.getElementById('s-statut').value        = s.statut;
+  openModal('modal-seance');
+}
+
+async function saveSeance() {
+  const id = document.getElementById('seance-edit-id').value;
+  const ens = allEnseignants.find(e => e.id == document.getElementById('s-enseignant').value);
+  const payload = {
+    titre:         document.getElementById('s-titre').value,
+    matiere:       document.getElementById('s-matiere').value,
+    type_seance:   document.getElementById('s-type').value,
+    enseignant_id: document.getElementById('s-enseignant').value,
+    enseignant_nom:ens ? `${ens.prenom} ${ens.nom}` : '',
+    salle:         document.getElementById('s-salle').value,
+    date_seance:   document.getElementById('s-date').value,
+    heure_debut:   document.getElementById('s-heure-debut').value,
+    heure_fin:     document.getElementById('s-heure-fin').value,
+    statut:        document.getElementById('s-statut').value,
+  };
+  if (!payload.titre || !payload.matiere || !payload.date_seance || !payload.heure_debut) {
+    showToast('Remplissez les champs obligatoires (titre, matière, date, heure)', 'error');
+    return;
+  }
+  try {
+    if (id) {
+      if (typeof api !== 'undefined') await api.updateSeance(id, payload);
+      const idx = allSeances.findIndex(s => s.id == id);
+      if (idx !== -1) allSeances[idx] = { ...allSeances[idx], ...payload };
+    } else {
+      let res = { id: Date.now(), ...payload };
+      if (typeof api !== 'undefined') res = await api.createSeance(payload);
+      const newId = (res.seance && res.seance.id) || res.id || Date.now();
+      allSeances.push({ id: newId, ...payload });
+    }
+    closeModal('modal-seance');
+    renderTable(allSeances);
+    renderCalendar();
+    showToast(id ? 'Séance mise à jour' : 'Séance créée', 'success');
+  } catch(err) {
+    showToast('Erreur lors de l\'enregistrement', 'error');
+  }
+}
+
+async function changerStatut(id) {
+  const s = allSeances.find(x => x.id === id);
+  if (!s) return;
+  const statuts = ['planifiee','en_cours','terminee','annulee'];
+  const idx = statuts.indexOf(s.statut);
+  const newStatut = statuts[(idx + 1) % statuts.length];
+  try {
+    if (typeof api !== 'undefined') await api.updateSeance(id, { statut: newStatut });
+    s.statut = newStatut;
+    renderTable(allSeances);
+    renderCalendar();
+    showToast(`Statut → ${STATUT_LBL[s.statut]}`, 'success');
+  } catch(err) {
+    showToast('Erreur lors du changement de statut', 'error');
+  }
+}
+
+async function deleteSeance(id) {
+  const s = allSeances.find(x => x.id === id);
+  if (!confirm(`Supprimer la séance "${s?.titre}" ?`)) return;
+  try {
+    if (typeof api !== 'undefined') await api.deleteSeance(id);
+    allSeances = allSeances.filter(x => x.id !== id);
+    renderTable(allSeances);
+    renderCalendar();
+    showToast('Séance supprimée', 'success');
+  } catch(err) {
+    showToast('Erreur suppression', 'error');
+  }
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;background:${type==='success'?'#16A34A':type==='error'?'#DC2626':'#1A3A6B'};color:#fff;padding:.75rem 1.25rem;border-radius:10px;font-size:.87rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+</script>
+</body>
+</html>

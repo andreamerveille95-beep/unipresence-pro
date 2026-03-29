@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enseignants — UniPresence Pro | IUE</title>
+
+  <!-- Anti-flash dark mode -->
+  <script>
+    const t = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <!-- Font Awesome — chargement non-bloquant pour performance -->
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+
+  <style>
+    /* ─── Toolbar ─── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow-card);
+    }
+    .toolbar-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-right: auto;
+    }
+    .toolbar-title span {
+      font-size: .8rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      margin-left: 6px;
+    }
+
+    /* ─── Barre de recherche ─── */
+    .search-wrapper { position: relative; }
+    .search-wrapper .search-icon {
+      position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted); font-size: .9rem; pointer-events: none;
+    }
+    .search-input {
+      padding: .5rem .75rem .5rem 2.1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: .87rem;
+      background: var(--bg-section);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      width: 220px;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--bleu-iue);
+      box-shadow: 0 0 0 3px rgba(26,58,107,.1);
+    }
+    html.dark .search-input { background: var(--bg-section); color: var(--text-primary); }
+
+    /* ─── Filtres ─── */
+    .filter-select {
+      padding: .5rem .75rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      background: var(--bg-section);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      cursor: pointer; outline: none;
+      transition: border-color var(--transition-fast);
+    }
+    .filter-select:focus { border-color: var(--bleu-iue); }
+    html.dark .filter-select { background: var(--bg-section); color: var(--text-primary); }
+
+    /* ─── Vue toggle ─── */
+    .view-toggle {
+      display: flex;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .view-btn {
+      padding: .4rem .7rem; background: none; border: none;
+      cursor: pointer; font-size: 1rem;
+      color: var(--text-muted);
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .view-btn.active { background: var(--bleu-iue); color: #fff; }
+    html.dark .view-btn.active { background: var(--gradient-bleu); color: #fff; }
+
+    /* ─── Boutons ─── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: .5rem 1rem; border-radius: var(--radius-sm);
+      font-size: .83rem; font-weight: 600; cursor: pointer;
+      border: none; text-decoration: none;
+      font-family: var(--font-body); transition: all var(--transition-fast);
+    }
+    .btn-primary  { background: var(--gradient-bleu); color: #fff; }
+    .btn-primary:hover  { opacity: .9; transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent;
+      border: 1.5px solid var(--border-color);
+      color: var(--text-primary);
+    }
+    .btn-secondary:hover { background: var(--bg-section); }
+    .btn-danger   { background: transparent; border: 1.5px solid var(--color-absent-bg); color: var(--rouge-alerte); }
+    .btn-danger:hover { background: var(--color-absent-bg); }
+    .btn-sm  { padding: .3rem .65rem; font-size: .78rem; }
+    .btn-icon { padding: .4rem .6rem; font-size: .9rem; }
+
+    /* ─── Grille cards profs ─── */
+    .profs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─── Card enseignant ─── */
+    .prof-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0;
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
+      position: relative; overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    /* Accent gradient en haut de la card */
+    .prof-card::before {
+      content: '';
+      display: block; width: 100%; height: 4px;
+      background: var(--gradient-bleu);
+      flex-shrink: 0;
+    }
+    .prof-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(26,58,107,.25);
+    }
+    html.dark .prof-card:hover { border-color: rgba(200,168,75,.3); }
+
+    .prof-card-inner {
+      padding: 1.25rem 1.25rem 1rem;
+      display: flex; flex-direction: column;
+      align-items: center; gap: .45rem; width: 100%;
+    }
+
+    /* ─── Avatar ─── */
+    .prof-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--gradient-bleu);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.5rem; font-weight: 700;
+      overflow: hidden; flex-shrink: 0;
+      border: 3px solid var(--bg-card);
+      box-shadow: 0 0 0 2px var(--bleu-iue);
+      position: relative;
+    }
+    .prof-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Pastille présence */
+    .prof-avatar .status-ring {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid var(--bg-card);
+      background: var(--border-color);
+    }
+    .prof-avatar .status-ring.present { background: var(--vert-presence); }
+
+    .prof-name {
+      font-family: var(--font-display);
+      font-size: .95rem; font-weight: 700;
+      color: var(--text-primary); line-height: 1.3;
+      margin-top: .2rem;
+    }
+    .prof-matricule {
+      font-family: var(--font-mono);
+      font-size: .7rem; color: var(--text-muted);
+      background: var(--bg-section);
+      padding: 2px 8px; border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    .prof-specialite {
+      font-size: .78rem; color: var(--text-muted);
+      line-height: 1.35; max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .prof-badges {
+      display: flex; gap: .35rem; flex-wrap: wrap; justify-content: center;
+      margin-top: .2rem;
+    }
+
+    .prof-card-actions {
+      display: flex; gap: .35rem;
+      padding: .75rem 1rem;
+      border-top: 1px solid var(--border-color);
+      width: 100%; justify-content: center; flex-wrap: wrap;
+      background: var(--bg-section);
+    }
+
+    /* ─── Badges département ─── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 9px; border-radius: var(--radius-full);
+      font-size: .7rem; font-weight: 700;
+    }
+    .badge-esit  { background: var(--badge-esit-bg);  color: var(--badge-esit-color); }
+    .badge-eme   { background: var(--badge-eme-bg);   color: var(--badge-eme-color); }
+    .badge-admin { background: var(--badge-admin-bg); color: var(--badge-admin-color); }
+    .badge-grade {
+      background: var(--bg-section); color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+    .badge-present { background: var(--color-present-bg); color: var(--color-present); }
+
+    /* ─── Tableau ─── */
+    .table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: auto; margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-card);
+    }
+    .data-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .data-table th {
+      background: var(--bg-section);
+      padding: .75rem 1rem; text-align: left;
+      font-size: .72rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color); white-space: nowrap;
+    }
+    .data-table td {
+      padding: .75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary); vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(26,58,107,.03); }
+    html.dark .data-table tr:hover td { background: rgba(200,168,75,.04); }
+
+    .td-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gradient-bleu);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: .78rem; font-weight: 700; overflow: hidden;
+    }
+    .td-name  { font-weight: 600; }
+    .td-mono  { font-family: var(--font-mono); font-size: .76rem; }
+    .td-muted { color: var(--text-muted); font-size: .8rem; }
+    .actions-cell { white-space: nowrap; }
+    .actions-cell .btn { margin-right: 4px; }
+
+    /* ─── Pagination ─── */
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: .4rem; margin-top: 1.25rem; flex-wrap: wrap;
+    }
+    .page-btn {
+      min-width: 36px; height: 36px; padding: 0 .6rem;
+      border: 1.5px solid var(--border-color); border-radius: var(--radius-sm);
+      background: var(--bg-card); color: var(--text-primary);
+      font-size: .83rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-fast);
+    }
+    .page-btn:hover, .page-btn.active {
+      background: var(--bleu-iue); color: #fff; border-color: var(--bleu-iue);
+    }
+    html.dark .page-btn:hover, html.dark .page-btn.active {
+      background: var(--or-iue); color: var(--bleu-iue); border-color: var(--or-iue);
+    }
+    .page-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* ─── Skeleton ─── */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position:  400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-section) 25%, var(--border-color) 50%, var(--bg-section) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.6s infinite; border-radius: 6px;
+    }
+
+    /* ─── Modals ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); z-index: 1000;
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 2rem; width: 100%; max-width: 520px;
+      max-height: 90vh; overflow-y: auto;
+      position: relative;
+      box-shadow: var(--shadow-elevated);
+      animation: modalIn .22s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform: scale(.96) translateY(10px); }
+      to   { opacity:1; transform: scale(1)   translateY(0); }
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem; font-weight: 700;
+      margin-bottom: 1.5rem; color: var(--text-primary);
+      padding-bottom: .75rem;
+      border-bottom: 2px solid var(--gradient-bleu);
+      background: var(--gradient-bleu);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--bg-section); border: 1px solid var(--border-color);
+      border-radius: 50%; width: 28px; height: 28px;
+      font-size: 1rem; cursor: pointer; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-fast);
+    }
+    .modal-close:hover { background: var(--color-absent-bg); color: var(--rouge-alerte); border-color: var(--rouge-alerte); }
+    .modal-footer {
+      display: flex; gap: .75rem; justify-content: flex-end;
+      margin-top: 1.5rem; padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* ─── Formulaire modal ─── */
+    .form-label {
+      display: block; font-size: .82rem; font-weight: 600;
+      margin-bottom: .35rem; color: var(--text-primary);
+    }
+    .form-group { margin-top: .75rem; }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .form-input {
+      width: 100%; padding: .6rem .8rem;
+      border: 1.5px solid var(--border-color); border-radius: var(--radius-sm);
+      font-size: .85rem; background: var(--bg-section);
+      color: var(--text-primary); font-family: var(--font-body);
+      transition: border-color var(--transition-fast); outline: none;
+    }
+    .form-input:focus { border-color: var(--bleu-iue); box-shadow: 0 0 0 3px rgba(26,58,107,.08); }
+    html.dark .form-input { background: var(--bg-section); color: var(--text-primary); }
+    .avatar-upload-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem; background: var(--bg-section);
+      border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+    }
+    .upload-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: .35rem .75rem; border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm); font-size: .8rem; cursor: pointer;
+      background: var(--bg-card); color: var(--text-primary);
+      transition: all var(--transition-fast);
+    }
+    .upload-label:hover { border-color: var(--bleu-iue); color: var(--bleu-iue); }
+
+    /* ─── QR modal ─── */
+    .qr-display { text-align: center; padding: 1rem; }
+    .qr-display img {
+      max-width: 200px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 1rem; background: #fff;
+      box-shadow: var(--shadow-card);
+    }
+    .qr-display .qr-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem; margin-top: .75rem; color: var(--text-primary);
+    }
+    .qr-display .qr-matric {
+      font-family: var(--font-mono);
+      font-size: .78rem; color: var(--text-muted);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      .toolbar { gap: .5rem; }
+      .search-input { width: 160px; }
+      .profs-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="40" height="40" onerror="this.style.display='none'">
+      </picture>
+      <div>
+        <div style="font-weight:700;color:var(--or-iue);font-size:0.95rem;">UniPresence Pro</div>
+        <div style="font-size:0.7rem;color:var(--text-sidebar);opacity:0.7;">IUE Douala</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a href="/dashboard" class="nav-link"><i class="fa-solid fa-house nav-icon"></i> Tableau de bord</a>
+      <a href="/professeurs" class="nav-link active"><i class="fa-solid fa-chalkboard-user nav-icon"></i> Enseignants</a>
+      <a href="/seances" class="nav-link"><i class="fa-solid fa-calendar-days nav-icon"></i> Séances</a>
+      <div class="nav-section-title">Rapports</div>
+      <a href="/rapport" class="nav-link"><i class="fa-solid fa-chart-bar nav-icon"></i> Rapports</a>
+      <a href="/qr_codes" class="nav-link"><i class="fa-solid fa-qrcode nav-icon"></i> QR Codes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="admin-name" style="font-size:0.85rem;color:var(--text-sidebar);">Admin IUE</div>
+      <button onclick="(typeof api!=='undefined'?api.logout():Promise.resolve()).then(()=>window.location='/connexion')"
+              class="btn btn-ghost" style="margin-top:8px;width:100%;font-size:0.8rem;">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="burger-btn" id="burgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <h1 class="topbar-title">Enseignants</h1>
+      <div class="topbar-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Changer thème"><i class="fa-solid fa-moon"></i></button>
+        <div class="user-info" id="userInfo">Admin</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- ─── Toolbar ─── -->
+      <div class="toolbar">
+        <span class="toolbar-title" id="toolbar-title">Enseignants (0)</span>
+
+        <!-- Recherche -->
+        <div class="search-wrapper">
+          <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="search" id="search-prof" class="search-input" placeholder="Rechercher...">
+        </div>
+
+        <!-- Filtres -->
+        <select id="filter-dept" class="filter-select">
+          <option value="">Tous les depts</option>
+          <option value="ESIT">ESIT</option>
+          <option value="EME">EME</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+
+        <select id="filter-statut" class="filter-select">
+          <option value="">Tous statuts</option>
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+
+        <select id="filter-grade" class="filter-select">
+          <option value="">Tous grades</option>
+          <option value="Assistant">Assistant</option>
+          <option value="Chargé">Chargé de cours</option>
+          <option value="Maître">Maître de conférences</option>
+          <option value="Professeur">Professeur</option>
+        </select>
+
+        <!-- Actions -->
+        <a href="/formulaire" class="btn btn-primary">+ Nouvel enseignant</a>
+        <button class="btn btn-secondary" onclick="exporterPDF()"><i class="fa-solid fa-file-pdf"></i> QR PDF</button>
+        <button class="btn btn-secondary" onclick="exporterZIP()"><i class="fa-solid fa-box-archive"></i> ZIP</button>
+
+        <!-- Vue toggle -->
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-vue-grille" onclick="setVue('grille')" title="Grille"><i class="fa-solid fa-grip"></i></button>
+          <button class="view-btn"        id="btn-vue-table"  onclick="setVue('table')"  title="Tableau"><i class="fa-solid fa-list"></i></button>
+        </div>
+      </div>
+
+      <!-- ─── Vue Grille ─── -->
+      <div id="profs-grid" class="profs-grid">
+        <!-- Skeletons de chargement -->
+        <div class="prof-card" style="animation:none;">
+          <div class="skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div class="skeleton" style="width:120px;height:14px;margin-top:8px;"></div>
+          <div class="skeleton" style="width:90px;height:10px;margin-top:4px;"></div>
+          <div class="skeleton" style="width:110px;height:10px;margin-top:4px;"></div>
+        </div>
+        <div class="prof-card" style="animation:none;">
+          <div class="skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div class="skeleton" style="width:130px;height:14px;margin-top:8px;"></div>
+          <div class="skeleton" style="width:80px;height:10px;margin-top:4px;"></div>
+          <div class="skeleton" style="width:100px;height:10px;margin-top:4px;"></div>
+        </div>
+        <div class="prof-card" style="animation:none;">
+          <div class="skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div class="skeleton" style="width:110px;height:14px;margin-top:8px;"></div>
+          <div class="skeleton" style="width:95px;height:10px;margin-top:4px;"></div>
+          <div class="skeleton" style="width:120px;height:10px;margin-top:4px;"></div>
+        </div>
+        <div class="prof-card" style="animation:none;">
+          <div class="skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div class="skeleton" style="width:125px;height:14px;margin-top:8px;"></div>
+          <div class="skeleton" style="width:85px;height:10px;margin-top:4px;"></div>
+          <div class="skeleton" style="width:105px;height:10px;margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- ─── Vue Tableau (caché par défaut) ─── -->
+      <div id="profs-table-wrapper" class="table-wrapper" style="display:none;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Nom complet</th>
+              <th>Matricule</th>
+              <th>Département</th>
+              <th>Spécialité</th>
+              <th>Grade</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="profs-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ─── Pagination ─── -->
+      <div class="pagination" id="pagination-profs"></div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ════ MODAL ÉDITION ════ -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-edit')">✕</button>
+    <h2 class="modal-title">Modifier l'enseignant</h2>
+    <form id="form-edit">
+      <input type="hidden" id="edit-id">
+      <!-- Photo de profil -->
+      <div class="avatar-upload-row" style="margin-bottom:1rem;">
+        <div id="edit-avatar-preview" class="prof-avatar" style="width:64px;height:64px;font-size:1.4rem;flex-shrink:0;position:relative;box-shadow:none;"></div>
+        <div>
+          <div class="form-label" style="margin-bottom:.4rem;">Photo de profil</div>
+          <label class="upload-label">
+            <i class="fa-solid fa-camera"></i> Choisir une photo
+            <input type="file" id="edit-photo-input" accept="image/*" style="display:none" onchange="handleEditPhoto(event)">
+          </label>
+          <div style="font-size:.72rem;color:var(--text-muted);margin-top:.25rem;">JPG, PNG — max 5 Mo</div>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input type="text" id="edit-prenom" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input type="text" id="edit-nom" class="form-input">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="edit-email" class="form-input">
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Département</label>
+          <select id="edit-dept" class="form-input">
+            <option value="ESIT">ESIT</option>
+            <option value="EME">EME</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grade</label>
+          <select id="edit-grade" class="form-input">
+            <option value="Assistant">Assistant</option>
+            <option value="Chargé">Chargé de cours</option>
+            <option value="Maître">Maître de conférences</option>
+            <option value="Professeur">Professeur</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Spécialité</label>
+        <input type="text" id="edit-specialite" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Statut</label>
+        <select id="edit-statut" class="form-input">
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit')">Annuler</button>
+      <button class="btn btn-primary"   onclick="saveEdit()"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL QR ════ -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal-box" style="max-width:380px;">
+    <button class="modal-close" onclick="closeModal('modal-qr')">✕</button>
+    <h2 class="modal-title">QR Code</h2>
+    <div class="qr-display">
+      <img id="qr-img" src="" alt="QR Code" onerror="this.src='/assets/images/qr-placeholder.png'">
+      <div class="qr-name" id="qr-nom"></div>
+      <div class="qr-matric" id="qr-matricule"></div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;flex-wrap:wrap;gap:8px;">
+      <button class="btn btn-primary"    onclick="downloadQR()"><i class="fa-solid fa-image"></i> PNG</button>
+      <button class="btn btn-secondary"  onclick="downloadQRPDF()" id="btn-qr-pdf"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+      <button class="btn btn-secondary"  onclick="regenererQR()"><i class="fa-solid fa-rotate"></i> Régénérer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts -->
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/animations.js"></script>
+<!-- professeurs.js retiré : conflit de déclaration let avec le script inline -->
+
+<script>
+// ─── Variables globales ─────────────────────────────────────────
+let allProfs   = [];
+let filteredProfs = [];
+let currentPage = 1;
+const PAGE_SIZE = 12;
+let currentVue  = 'grille';
+let currentQrProf = null;
+
+// ─── Initialisation ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadProfs();
+
+  document.getElementById('search-prof').addEventListener('input',   applyFilters);
+  document.getElementById('filter-dept').addEventListener('change',  applyFilters);
+  document.getElementById('filter-statut').addEventListener('change',applyFilters);
+  document.getElementById('filter-grade').addEventListener('change', applyFilters);
+});
+
+async function loadProfs() {
+  try {
+    let list = [];
+    if (typeof api !== 'undefined') {
+      try {
+        const resp = await api.getEnseignants();
+        // L'API retourne {enseignants: [...], total: N}
+        list = Array.isArray(resp) ? resp : (resp.enseignants || resp.data || []);
+        // Normaliser le champ statut (est_actif → statut)
+        list = list.map(p => ({
+          ...p,
+          statut: p.statut || (p.est_actif === 1 || p.est_actif === true ? 'actif' : 'inactif'),
+          photo: p.photo || '',
+        }));
+      } catch(err) {
+        console.warn('API enseignants erreur:', err);
+      }
+    }
+    allProfs = list;
+    applyFilters();
+  } catch(err) {
+    console.warn('Erreur chargement enseignants:', err);
+  }
+}
+
+function applyFilters() {
+  const q    = document.getElementById('search-prof').value.trim().toLowerCase();
+  const dept = document.getElementById('filter-dept').value;
+  const stat = document.getElementById('filter-statut').value;
+  const grade= document.getElementById('filter-grade').value;
+
+  filteredProfs = allProfs.filter(p => {
+    const matchQ     = !q    || (p.prenom+' '+p.nom+' '+p.matricule+' '+p.specialite).toLowerCase().includes(q);
+    const matchDept  = !dept || p.departement === dept;
+    const matchStat  = !stat || p.statut === stat;
+    const matchGrade = !grade|| (p.grade||'').includes(grade);
+    return matchQ && matchDept && matchStat && matchGrade;
+  });
+
+  document.getElementById('toolbar-title').innerHTML =
+    `Enseignants <span>(${filteredProfs.length})</span>`;
+  currentPage = 1;
+  renderPage();
+}
+
+function renderPage() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filteredProfs.slice(start, start + PAGE_SIZE);
+  if (currentVue === 'grille') renderGrille(page);
+  else renderTableau(page);
+  renderPagination();
+}
+
+function renderGrille(profs) {
+  const grid = document.getElementById('profs-grid');
+  if (!profs.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+      <i class="fa-solid fa-users-slash" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:1rem;"></i>
+      Aucun enseignant trouvé
+    </div>`;
+    return;
+  }
+  grid.innerHTML = profs.map(p => {
+    const initiales = ((p.prenom||'')[0]||'?') + ((p.nom||'')[0]||'?');
+    const badgeCls  = p.departement === 'ESIT' ? 'badge-esit' : p.departement === 'EME' ? 'badge-eme' : 'badge-admin';
+    const isPresent = p.present_aujourd_hui;
+    return `
+      <div class="prof-card">
+        <div class="prof-card-inner">
+          <div class="prof-avatar">
+            ${p.photo
+              ? `<img src="${p.photo}" alt="${p.prenom}">`
+              : `<span>${initiales.toUpperCase()}</span>`}
+            <span class="status-ring ${isPresent ? 'present' : ''}" title="${isPresent ? 'Présent aujourd\'hui' : 'Absent aujourd\'hui'}"></span>
+          </div>
+          <div class="prof-name">${p.prenom || ''} ${p.nom || ''}</div>
+          <div class="prof-matricule">${p.matricule || '—'}</div>
+          <div class="prof-specialite" title="${p.specialite||''}">${p.specialite || '—'}</div>
+          <div class="prof-badges">
+            ${p.departement ? `<span class="badge ${badgeCls}">${p.departement}</span>` : ''}
+            ${p.grade ? `<span class="badge badge-grade">${p.grade}</span>` : ''}
+            ${isPresent ? `<span class="badge badge-present"><i class="fa-solid fa-circle" style="font-size:.45rem;"></i> Présent</span>` : ''}
+          </div>
+        </div>
+        <div class="prof-card-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openEdit(${p.id})" title="Modifier"><i class="fa-solid fa-pen-to-square"></i> Éditer</button>
+          <button class="btn btn-secondary btn-sm" onclick="openQR(${p.id})"   title="QR Code"><i class="fa-solid fa-qrcode"></i> QR</button>
+          <button class="btn btn-danger btn-sm"    onclick="supprimerProf(${p.id})" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderTableau(profs) {
+  const tbody = document.getElementById('profs-tbody');
+  if (!profs.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">Aucun enseignant trouvé</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = profs.map(p => {
+    const initiales = (p.prenom[0]||'') + (p.nom[0]||'');
+    const badgeCls  = p.departement === 'ESIT' ? 'badge-esit' : p.departement === 'EME' ? 'badge-eme' : 'badge-admin';
+    const statutCls = p.statut === 'actif' ? 'color:#16A34A;font-weight:600;' : 'color:#DC2626;font-weight:600;';
+    return `
+      <tr>
+        <td><div class="td-avatar">${initiales.toUpperCase()}</div></td>
+        <td class="td-name">${p.prenom} ${p.nom}</td>
+        <td class="td-mono">${p.matricule}</td>
+        <td><span class="badge ${badgeCls}">${p.departement}</span></td>
+        <td class="td-muted">${p.specialite || '—'}</td>
+        <td class="td-muted">${p.grade || '—'}</td>
+        <td>${p.statut === 'actif'
+              ? '<span class="badge badge-present"><i class="fa-solid fa-circle-check"></i> Actif</span>'
+              : '<span class="badge" style="background:var(--color-absent-bg);color:var(--rouge-alerte)"><i class="fa-solid fa-circle-pause"></i> Inactif</span>'}</td>
+        <td class="actions-cell">
+          <button class="btn btn-secondary btn-sm" onclick="openEdit(${p.id})"><i class="fa-solid fa-pen-to-square"></i> Éditer</button>
+          <button class="btn btn-secondary btn-sm" onclick="openQR(${p.id})"><i class="fa-solid fa-qrcode"></i> QR</button>
+          <button class="btn btn-danger btn-sm"    onclick="supprimerProf(${p.id})"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const total = Math.ceil(filteredProfs.length / PAGE_SIZE);
+  const pag   = document.getElementById('pagination-profs');
+  if (total <= 1) { pag.innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for (let i = 1; i <= total; i++) {
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
+  pag.innerHTML = html;
+}
+
+function goPage(n) {
+  const total = Math.ceil(filteredProfs.length / PAGE_SIZE);
+  if (n < 1 || n > total) return;
+  currentPage = n;
+  renderPage();
+}
+
+function setVue(vue) {
+  currentVue = vue;
+  document.getElementById('profs-grid').style.display            = vue === 'grille' ? 'grid' : 'none';
+  document.getElementById('profs-table-wrapper').style.display   = vue === 'table'  ? 'block' : 'none';
+  document.getElementById('btn-vue-grille').classList.toggle('active', vue === 'grille');
+  document.getElementById('btn-vue-table').classList.toggle('active',  vue === 'table');
+  renderPage();
+}
+
+// ─── Modals ─────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let editPhotoBase64 = '';
+
+function handleEditPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    editPhotoBase64 = ev.target.result;
+    const preview = document.getElementById('edit-avatar-preview');
+    preview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function openEdit(id) {
+  const p = allProfs.find(x => x.id === id);
+  if (!p) return;
+  editPhotoBase64 = '';
+  document.getElementById('edit-id').value         = p.id;
+  document.getElementById('edit-prenom').value     = p.prenom;
+  document.getElementById('edit-nom').value        = p.nom;
+  document.getElementById('edit-email').value      = p.email || '';
+  document.getElementById('edit-dept').value       = p.departement;
+  document.getElementById('edit-grade').value      = p.grade || 'Assistant';
+  document.getElementById('edit-specialite').value = p.specialite || '';
+  document.getElementById('edit-statut').value     = p.statut || 'actif';
+  // Afficher l'avatar actuel
+  const preview = document.getElementById('edit-avatar-preview');
+  if (p.photo) {
+    preview.innerHTML = `<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+    const initiales = ((p.prenom||'')[0]||'').toUpperCase() + ((p.nom||'')[0]||'').toUpperCase();
+    preview.textContent = initiales;
+    preview.style.background = 'linear-gradient(135deg,#1A3A6B,#2D5AA8)';
+  }
+  openModal('modal-edit');
+}
+
+async function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const payload = {
+    prenom:       document.getElementById('edit-prenom').value,
+    nom:          document.getElementById('edit-nom').value,
+    email:        document.getElementById('edit-email').value,
+    departement:  document.getElementById('edit-dept').value,
+    grade:        document.getElementById('edit-grade').value,
+    specialite:   document.getElementById('edit-specialite').value,
+    est_actif:    document.getElementById('edit-statut').value === 'actif' ? 1 : 0,
+  };
+  // Ajouter la photo si modifiée
+  if (editPhotoBase64) {
+    payload.photo = editPhotoBase64;
+  }
+  try {
+    if (typeof api !== 'undefined') await api.updateEnseignant(id, payload);
+    const idx = allProfs.findIndex(p => p.id == id);
+    if (idx !== -1) {
+      allProfs[idx] = {
+        ...allProfs[idx],
+        ...payload,
+        statut: payload.est_actif === 1 ? 'actif' : 'inactif',
+        photo:  editPhotoBase64 || allProfs[idx].photo,
+      };
+    }
+    closeModal('modal-edit');
+    applyFilters();
+    showToast('Enseignant mis à jour avec succès', 'success');
+  } catch(err) {
+    showToast('Erreur lors de la mise à jour', 'error');
+  }
+}
+
+async function openQR(id) {
+  const p = allProfs.find(x => x.id === id);
+  if (!p) return;
+  currentQrProf = p;
+  document.getElementById('qr-nom').textContent       = p.prenom + ' ' + p.nom;
+  document.getElementById('qr-matricule').textContent  = p.matricule;
+  document.getElementById('qr-img').src = '';
+  openModal('modal-qr');
+  // Charger l'image QR en base64 via l'API
+  try {
+    const data = await api.getQRCode(id);
+    const b64  = data.qr_base64 || '';
+    if (b64) {
+      document.getElementById('qr-img').src = b64.startsWith('data:') ? b64 : 'data:image/png;base64,' + b64;
+    }
+  } catch(err) {
+    console.warn('QR code non disponible:', err);
+  }
+}
+
+function downloadQR() {
+  if (!currentQrProf) return;
+  const link = document.createElement('a');
+  link.href     = document.getElementById('qr-img').src;
+  link.download = `QR_${currentQrProf.matricule}.png`;
+  link.click();
+}
+
+async function downloadQRPDF() {
+  if (!currentQrProf) return;
+  const btn = document.getElementById('btn-qr-pdf');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+  try {
+    const response = await fetch(`/api/enseignants/${currentQrProf.id}/qr/pdf`, {
+      credentials: 'include',
+    });
+    if (!response.ok) throw new Error(`Erreur ${response.status}`);
+    const blob = await response.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `QR_${currentQrProf.matricule}_${currentQrProf.nom}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
+    showToast('PDF téléchargé', 'success');
+  } catch (err) {
+    showToast('Erreur PDF : ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+  }
+}
+
+async function regenererQR() {
+  if (!currentQrProf) return;
+  try {
+    if (typeof api !== 'undefined') {
+      await api.regenerateQR(currentQrProf.id);
+      // Recharger le QR depuis l'API après régénération
+      const data = await api.getQRCode(currentQrProf.id);
+      const b64  = data.qr_base64 || '';
+      if (b64) {
+        document.getElementById('qr-img').src = b64.startsWith('data:') ? b64 : 'data:image/png;base64,' + b64;
+      }
+    }
+    showToast('QR code régénéré', 'success');
+  } catch(err) {
+    showToast('Erreur régénération QR', 'error');
+  }
+}
+
+async function supprimerProf(id) {
+  const p = allProfs.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Supprimer ${p.prenom} ${p.nom} ? Cette action est irréversible.`)) return;
+  try {
+    if (typeof api !== 'undefined') await api.deleteEnseignant(id);
+    allProfs = allProfs.filter(x => x.id !== id);
+    applyFilters();
+    showToast('Enseignant supprimé', 'success');
+  } catch(err) {
+    showToast('Erreur lors de la suppression', 'error');
+  }
+}
+
+function exporterPDF() {
+  window.open('/api/enseignants/qr/export', '_blank');
+}
+function exporterZIP() {
+  window.open('/api/enseignants/qr/zip', '_blank');
+}
+
+// ─── Toast simple ────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.style.cssText = `
+    position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+    background:${type==='success'?'#16A34A':type==='error'?'#DC2626':'#1A3A6B'};
+    color:#fff;padding:.75rem 1.25rem;border-radius:10px;
+    font-size:.87rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);
+    animation:fadeInUp .3s ease;
+  `;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// Fermer modal en cliquant sur l'overlay
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

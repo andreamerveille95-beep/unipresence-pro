@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rapports — UniPresence Pro</title>
+  <script>const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="40" height="40" onerror="this.style.display='none'">
+      </picture>
+      <div>
+        <div style="font-weight:700;color:var(--or-iue);font-size:0.95rem;">UniPresence Pro</div>
+        <div style="font-size:0.7rem;color:var(--text-sidebar);opacity:0.7;">IUE Douala</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a href="/dashboard" class="nav-link"><i class="fa-solid fa-house nav-icon"></i> Tableau de bord</a>
+      <a href="/professeurs" class="nav-link"><i class="fa-solid fa-chalkboard-user nav-icon"></i> Enseignants</a>
+      <a href="/seances" class="nav-link"><i class="fa-solid fa-calendar-days nav-icon"></i> Séances</a>
+      <div class="nav-section-title">Rapports</div>
+      <a href="/rapport" class="nav-link active"><i class="fa-solid fa-chart-bar nav-icon"></i> Rapports</a>
+      <a href="/qr_codes" class="nav-link"><i class="fa-solid fa-qrcode nav-icon"></i> QR Codes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="admin-name" style="font-size:0.82rem;font-weight:600;color:var(--text-sidebar);">Admin IUE</div>
+      <div style="font-size:0.75rem;color:var(--text-sidebar);opacity:0.6;margin-bottom:10px;">Administrateur</div>
+      <button onclick="api.logout().then(()=>window.location.href='/connexion')" class="btn btn-ghost btn-sm" style="width:100%;color:var(--text-sidebar);"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="burger-btn" id="burgerBtn"><span></span><span></span><span></span></button>
+      <h1 class="topbar-title">Rapports de présences</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-icon theme-toggle" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+        <div id="userInfo" style="font-size:0.85rem;font-weight:600;">Admin</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Panneau filtres -->
+      <div class="card" style="margin-bottom:24px;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:16px;">🔍 Filtres de recherche</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;">
+          <div class="form-group">
+            <label class="form-label">Enseignant</label>
+            <select id="filter-enseignant" class="form-control">
+              <option value="">Tous les enseignants</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Département</label>
+            <select id="filter-dept" class="form-control">
+              <option value="">Tous</option>
+              <option value="ESIT">ESIT</option>
+              <option value="EME">EME</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Statut</label>
+            <select id="filter-statut" class="form-control">
+              <option value="">Tous</option>
+              <option value="PRESENT">Présent</option>
+              <option value="RETARD">Retard</option>
+              <option value="ABSENT">Absent</option>
+              <option value="EXCUSE">Excusé</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Période -->
+        <div style="margin-bottom:16px;">
+          <label class="form-label" style="margin-bottom:8px;display:block;">Période</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn btn-secondary btn-sm" data-range="today" onclick="setDateRange('today')">Aujourd'hui</button>
+            <button class="btn btn-secondary btn-sm" data-range="week" onclick="setDateRange('week')">Cette semaine</button>
+            <button class="btn btn-secondary btn-sm" data-range="month" onclick="setDateRange('month')">Ce mois</button>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <div class="form-group" style="margin:0;">
+              <input type="date" id="date-debut" class="form-control" style="width:auto;">
+            </div>
+            <span style="color:var(--text-muted);font-size:0.875rem;">→</span>
+            <div class="form-group" style="margin:0;">
+              <input type="date" id="date-fin" class="form-control" style="width:auto;">
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border-color);">
+          <button class="btn btn-secondary" onclick="resetFilters()">✕ Réinitialiser</button>
+          <button class="btn btn-primary" onclick="loadRapport()">🔍 Rechercher</button>
+        </div>
+      </div>
+
+      <!-- Stats résultats -->
+      <div id="stats-section" style="display:none;margin-bottom:24px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+          <div class="card" style="padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;font-family:'Playfair Display',serif;" id="stat-total">0</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Total</div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;color:var(--vert-presence);font-family:'Playfair Display',serif;" id="stat-presents">0</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Présents</div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;color:var(--orange-retard);font-family:'Playfair Display',serif;" id="stat-retards">0</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Retards</div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;color:var(--rouge-alerte);font-family:'Playfair Display',serif;" id="stat-absents">0</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Absents</div>
+          </div>
+        </div>
+        <!-- Barre de progression taux présence -->
+        <div class="card" style="padding:16px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.875rem;">
+            <span>Taux de présence</span>
+            <span id="stat-taux" style="font-weight:700;">--%</span>
+          </div>
+          <div style="background:var(--bg-section);border-radius:20px;height:10px;overflow:hidden;">
+            <div id="progress-bar-fill" style="height:100%;border-radius:20px;background:var(--vert-presence);width:0%;transition:width 0.8s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau + exports -->
+      <div class="card">
+        <div class="table-toolbar" style="margin-bottom:16px;">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1rem;">Résultats <span id="results-count" style="font-size:0.8rem;color:var(--text-muted);"></span></h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="exportPDF()" id="btn-pdf">📄 PDF</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()" id="btn-csv">📊 CSV</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper" id="rapport-table-wrap">
+          <table class="data-table" id="rapport-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Enseignant</th>
+                <th>Département</th>
+                <th>Mode</th>
+                <th>Heure</th>
+                <th>Retard</th>
+                <th>Statut</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="rapport-tbody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+                Utilisez les filtres ci-dessus pour afficher les présences.
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="pagination-rapport" style="margin-top:16px;"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/animations.js"></script>
+<script src="/assets/js/rapport.js"></script>
+<script>
+function _isoDate(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+function setDateRange(range) {
+  const debut = document.getElementById('date-debut');
+  const fin   = document.getElementById('date-fin');
+  const now   = new Date();
+  if (range === 'today') {
+    const t = _isoDate(now);
+    if (debut) debut.value = t;
+    if (fin)   fin.value   = t;
+  } else if (range === 'week') {
+    const day   = now.getDay() || 7;
+    const lundi = new Date(now); lundi.setDate(now.getDate() - day + 1);
+    const dim   = new Date(lundi); dim.setDate(lundi.getDate() + 6);
+    if (debut) debut.value = _isoDate(lundi);
+    if (fin)   fin.value   = _isoDate(dim);
+  } else if (range === 'month') {
+    const d1 = new Date(now.getFullYear(), now.getMonth(), 1);
+    const d2 = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    if (debut) debut.value = _isoDate(d1);
+    if (fin)   fin.value   = _isoDate(d2);
+  }
+  // Mettre à jour le style des boutons
+  document.querySelectorAll('[data-range]').forEach(function(b) {
+    b.classList.toggle('btn--active', b.dataset.range === range);
+  });
+  if (typeof loadRapport === 'function') loadRapport();
+}
+
+function resetFilters() {
+  ['filter-enseignant','filter-dept','filter-statut'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['date-debut','date-fin'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('[data-range]').forEach(function(b) {
+    b.classList.remove('btn--active');
+  });
+  if (typeof loadRapport === 'function') loadRapport();
+}
+</script>
+</body>
+</html>

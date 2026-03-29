@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord — UniPresence Pro | IUE</title>
+
+  <!-- Anti-flash dark mode -->
+  <script>
+    const t = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/animations.css">
+  <link rel="stylesheet" href="/assets/css/dashboard.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="icon" href="/assets/images/logo-iue.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ─── KPI Grid ─── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 520px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--bg-card, #fff);
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: 14px;
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .22s, box-shadow .22s;
+    }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.09); }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(255,255,255,.04) 100%);
+      pointer-events: none;
+    }
+
+    .kpi-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: .25rem;
+    }
+    .kpi-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text, #0F172A);
+      line-height: 1;
+    }
+    .kpi-label {
+      font-size: .8rem;
+      color: var(--text-muted, #64748B);
+      font-weight: 500;
+    }
+    .kpi-delta {
+      font-size: .75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .kpi-delta.up   { color: #16A34A; }
+    .kpi-delta.down { color: #DC2626; }
+    .kpi-delta.neutral { color: #EA580C; }
+
+    /* ─── Charts grid ─── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+
+    .chart-card {
+      background: var(--bg-card, #fff);
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .chart-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text, #0F172A);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chart-badge {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(26,58,107,.08);
+      color: #1A3A6B;
+    }
+    .dark .chart-badge { background: rgba(200,168,75,.12); color: #C8A84B; }
+
+    /* ─── Donut legendes ─── */
+    .donut-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .donut-legend { width: 100%; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .82rem;
+      padding: .35rem 0;
+      border-bottom: 1px solid var(--border, #E2E8F0);
+    }
+    .legend-item:last-child { border-bottom: none; }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 7px;
+      flex-shrink: 0;
+    }
+    .legend-label { display: flex; align-items: center; color: var(--text-muted, #64748B); }
+    .legend-val { font-weight: 600; color: var(--text, #0F172A); }
+
+    /* ─── Bars chart ─── */
+    .bars-card {
+      background: var(--bg-card, #fff);
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ─── Widgets grid ─── */
+    .widgets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    @media (max-width: 768px) { .widgets-grid { grid-template-columns: 1fr; } }
+
+    .widget-card {
+      background: var(--bg-card, #fff);
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .widget-title {
+      font-family: 'Playfair Display', serif;
+      font-size: .95rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text, #0F172A);
+    }
+
+    /* ─── Skeleton loading ─── */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position:  400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.6s infinite;
+      border-radius: 6px;
+    }
+    .dark .skeleton {
+      background: linear-gradient(90deg, #21262D 25%, #30363D 50%, #21262D 75%);
+      background-size: 800px 100%;
+    }
+    .skeleton-line { height: 14px; margin-bottom: 10px; }
+    .skeleton-line.short { width: 55%; }
+    .skeleton-line.medium { width: 75%; }
+    .skeleton-line.full { width: 100%; }
+
+    /* ─── Pointages list ─── */
+    .pointage-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: .7rem 0;
+      border-bottom: 1px solid var(--border, #E2E8F0);
+    }
+    .pointage-item:last-child { border-bottom: none; }
+    .pointage-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1A3A6B, #2D5AA8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .pointage-info { flex: 1; min-width: 0; }
+    .pointage-name { font-size: .87rem; font-weight: 600; color: var(--text, #0F172A); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pointage-meta { font-size: .74rem; color: var(--text-muted, #64748B); margin-top: 1px; }
+    .pointage-time { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--text-muted, #64748B); flex-shrink: 0; }
+
+    /* ─── Séances today ─── */
+    .seance-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: .7rem 0;
+      border-bottom: 1px solid var(--border, #E2E8F0);
+    }
+    .seance-item:last-child { border-bottom: none; }
+    .seance-time-badge {
+      background: rgba(26,58,107,.08);
+      color: #1A3A6B;
+      border-radius: 7px;
+      padding: 3px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .74rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .dark .seance-time-badge { background: rgba(200,168,75,.12); color: #C8A84B; }
+    .seance-info .seance-title { font-size: .87rem; font-weight: 600; color: var(--text, #0F172A); }
+    .seance-info .seance-sub   { font-size: .74rem; color: var(--text-muted, #64748B); margin-top: 2px; }
+
+    /* ─── Alertes ─── */
+    .alert-card {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-left: 4px solid #EA580C;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .dark .alert-card {
+      background: rgba(234,88,12,.08);
+      border-color: rgba(234,88,12,.25);
+      border-left-color: #EA580C;
+    }
+    .alert-card-icon { font-size: 1.2rem; }
+    .alert-card-body { flex: 1; }
+    .alert-card-title { font-weight: 600; font-size: .87rem; color: #EA580C; margin-bottom: 3px; }
+    .alert-card-text  { font-size: .82rem; color: var(--text-muted, #64748B); }
+
+    /* ─── Badge statuts ─── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: .73rem;
+      font-weight: 600;
+    }
+    .badge-present { background: #DCFCE7; color: #16A34A; }
+    .badge-retard  { background: #FFF7ED; color: #EA580C; }
+    .badge-absent  { background: #FEF2F2; color: #DC2626; }
+    .dark .badge-present { background: rgba(22,163,74,.18); }
+    .dark .badge-retard  { background: rgba(234,88,12,.18); }
+    .dark .badge-absent  { background: rgba(220,38,38,.18); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <picture>
+        <source srcset="/assets/images/logo-iue.webp" type="image/webp">
+        <img src="/assets/images/logo-iue.png" alt="IUE" width="40" height="40" onerror="this.style.display='none'">
+      </picture>
+      <div>
+        <div style="font-weight:700;color:var(--or-iue);font-size:0.95rem;">UniPresence Pro</div>
+        <div style="font-size:0.7rem;color:var(--text-sidebar);opacity:0.7;">IUE Douala</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a href="/dashboard" class="nav-link active"><i class="fa-solid fa-house nav-icon"></i> Tableau de bord</a>
+      <a href="/professeurs" class="nav-link"><i class="fa-solid fa-chalkboard-user nav-icon"></i> Enseignants</a>
+      <a href="/seances" class="nav-link"><i class="fa-solid fa-calendar-days nav-icon"></i> Séances</a>
+      <div class="nav-section-title">Rapports</div>
+      <a href="/rapport" class="nav-link"><i class="fa-solid fa-chart-bar nav-icon"></i> Rapports</a>
+      <a href="/qr_codes" class="nav-link"><i class="fa-solid fa-qrcode nav-icon"></i> QR Codes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="admin-name" style="font-size:0.85rem;color:var(--text-sidebar);">Admin IUE</div>
+      <button onclick="(typeof api!=='undefined'?api.logout():Promise.resolve()).then(()=>window.location='/connexion')"
+              class="btn btn-ghost" style="margin-top:8px;width:100%;font-size:0.8rem;">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════════ TOPBAR ═══════════ -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="burger-btn" id="burgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <h1 class="topbar-title">Tableau de bord</h1>
+      <div class="topbar-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Changer thème"><i class="fa-solid fa-moon"></i></button>
+        <div class="user-info" id="userInfo">Admin</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Date du jour -->
+      <div style="margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+        <div>
+          <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--text);">Vue d'ensemble</h2>
+          <p style="font-size:.85rem;color:var(--text-muted);" id="date-today">Chargement...</p>
+        </div>
+        <a href="/scanner" style="display:inline-flex;align-items:center;gap:8px;background:var(--bleu-iue,#1A3A6B);color:#fff;padding:.6rem 1.2rem;border-radius:9px;text-decoration:none;font-size:.87rem;font-weight:600;transition:all .2s;">
+          <i class="fa-solid fa-camera"></i> Scanner une présence
+        </a>
+      </div>
+
+      <!-- ─── KPIs ─── -->
+      <div class="kpi-grid">
+
+        <div class="kpi-card" data-reveal>
+          <div class="kpi-icon" style="background:linear-gradient(135deg,#1A3A6B,#2D5AA8);color:#fff;"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <div class="kpi-value" id="kpi-total">--</div>
+          <div class="kpi-label">Enseignants actifs</div>
+          <span class="kpi-delta neutral" id="kpi-total-delta">-- total</span>
+        </div>
+
+        <div class="kpi-card" data-reveal>
+          <div class="kpi-icon" style="background:linear-gradient(135deg,#16A34A,#22C55E);color:#fff;"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="kpi-value" id="kpi-presents">--</div>
+          <div class="kpi-label">Présents aujourd'hui</div>
+          <span class="kpi-delta up" id="kpi-presents-delta">↑ --</span>
+        </div>
+
+        <div class="kpi-card" data-reveal>
+          <div class="kpi-icon" style="background:linear-gradient(135deg,#EA580C,#F97316);color:#fff;"><i class="fa-solid fa-clock"></i></div>
+          <div class="kpi-value" id="kpi-retards">--</div>
+          <div class="kpi-label">Retards ce mois</div>
+          <span class="kpi-delta neutral" id="kpi-retards-delta">-- cette sem.</span>
+        </div>
+
+        <div class="kpi-card" data-reveal>
+          <div class="kpi-icon" style="background:linear-gradient(135deg,#DC2626,#EF4444);color:#fff;"><i class="fa-solid fa-user-xmark"></i></div>
+          <div class="kpi-value" id="kpi-absences">--</div>
+          <div class="kpi-label">Absences cette semaine</div>
+          <span class="kpi-delta down" id="kpi-absences-delta">↑ --</span>
+        </div>
+
+      </div>
+
+      <!-- ─── Alerte retards ─── -->
+      <div id="alert-section" style="display:none;">
+        <div class="alert-card">
+          <div class="alert-card-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="alert-card-body">
+            <div class="alert-card-title">Retards en cours</div>
+            <div class="alert-card-text" id="alert-text">Des enseignants ont des retards non justifiés.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Graphiques courbe + donut ─── -->
+      <div class="charts-grid">
+
+        <!-- Courbe présences 7 jours -->
+        <div class="chart-card">
+          <div class="chart-title">
+            Présences — 7 derniers jours
+            <span class="chart-badge" id="chart-line-badge">Cette semaine</span>
+          </div>
+          <svg id="chart-line" width="100%" height="220" viewBox="0 0 500 200"
+               xmlns="http://www.w3.org/2000/svg" aria-label="Graphique courbe présences">
+            <!-- Grille horizontale -->
+            <line x1="40" y1="20"  x2="490" y2="20"  stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="40" y1="60"  x2="490" y2="60"  stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="40" y1="100" x2="490" y2="100" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="40" y1="140" x2="490" y2="140" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="40" y1="180" x2="490" y2="180" stroke="#E2E8F0" stroke-width="1"/>
+            <!-- Labels Y -->
+            <text x="35" y="23"  text-anchor="end" font-size="9" fill="#94A3B8">20</text>
+            <text x="35" y="63"  text-anchor="end" font-size="9" fill="#94A3B8">15</text>
+            <text x="35" y="103" text-anchor="end" font-size="9" fill="#94A3B8">10</text>
+            <text x="35" y="143" text-anchor="end" font-size="9" fill="#94A3B8">5</text>
+            <text x="35" y="183" text-anchor="end" font-size="9" fill="#94A3B8">0</text>
+            <!-- Données dynamiques remplies par JS (path#line-path, polygon#line-area) -->
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="var(--bleu-iue,#1A3A6B)" stop-opacity=".25"/>
+                <stop offset="100%" stop-color="var(--bleu-iue,#1A3A6B)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polygon id="line-area" fill="url(#lineGrad)"/>
+            <polyline id="line-path" fill="none" stroke="var(--bleu-iue,#1A3A6B)" stroke-width="2.5"
+                      stroke-linejoin="round" stroke-linecap="round"/>
+            <g id="line-dots"></g>
+            <g id="line-labels-x"></g>
+          </svg>
+        </div>
+
+        <!-- Donut ponctualité -->
+        <div class="chart-card">
+          <div class="chart-title">Taux de ponctualité</div>
+          <div class="donut-wrapper">
+            <svg id="chart-donut" width="160" height="160" viewBox="0 0 160 160"
+                 xmlns="http://www.w3.org/2000/svg" aria-label="Donut taux ponctualité">
+              <!-- Fond -->
+              <circle cx="80" cy="80" r="60" fill="none" stroke="#E2E8F0" stroke-width="18"/>
+              <!-- Présents -->
+              <circle id="donut-present" cx="80" cy="80" r="60" fill="none"
+                      stroke="#16A34A" stroke-width="18"
+                      stroke-dasharray="0 377" stroke-dashoffset="94"
+                      stroke-linecap="round"
+                      style="transition: stroke-dasharray 1s ease;"/>
+              <!-- Retards -->
+              <circle id="donut-retard" cx="80" cy="80" r="60" fill="none"
+                      stroke="#EA580C" stroke-width="18"
+                      stroke-dasharray="0 377" stroke-dashoffset="94"
+                      stroke-linecap="round"
+                      style="transition: stroke-dasharray 1s ease;"/>
+              <!-- Absents -->
+              <circle id="donut-absent" cx="80" cy="80" r="60" fill="none"
+                      stroke="#DC2626" stroke-width="18"
+                      stroke-dasharray="0 377" stroke-dashoffset="94"
+                      stroke-linecap="round"/>
+              <!-- Centre -->
+              <text id="donut-pct" x="80" y="76" text-anchor="middle"
+                    font-family="'Playfair Display',serif" font-size="22" font-weight="700" fill="var(--bleu-iue,#1A3A6B)">--%</text>
+              <text x="80" y="93" text-anchor="middle"
+                    font-size="9" fill="#94A3B8">présence</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <span class="legend-label"><span class="legend-dot" style="background:#16A34A"></span>Présents</span>
+                <span class="legend-val" id="legend-present">-- %</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-label"><span class="legend-dot" style="background:#EA580C"></span>Retards</span>
+                <span class="legend-val" id="legend-retard">-- %</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-label"><span class="legend-dot" style="background:#DC2626"></span>Absents</span>
+                <span class="legend-val" id="legend-absent">-- %</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ─── Barres par département ─── -->
+      <div class="bars-card">
+        <div class="chart-title" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;margin-bottom:1.25rem;">
+          Présences par département — Ce mois
+        </div>
+        <svg id="chart-bars" width="100%" height="200" viewBox="0 0 500 190"
+             xmlns="http://www.w3.org/2000/svg" aria-label="Barres par département">
+          <!-- Grille -->
+          <line x1="50" y1="10"  x2="490" y2="10"  stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="50" y1="50"  x2="490" y2="50"  stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="50" y1="90"  x2="490" y2="90"  stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="50" y1="130" x2="490" y2="130" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="50" y1="165" x2="490" y2="165" stroke="#E2E8F0" stroke-width="1"/>
+          <!-- Rempli dynamiquement par JS (#bars-group) -->
+          <g id="bars-group"></g>
+          <!-- Labels X -->
+          <g id="bars-labels-x"></g>
+          <g id="bars-labels-y">
+            <text x="45" y="13"  text-anchor="end" font-size="9" fill="#94A3B8">100</text>
+            <text x="45" y="53"  text-anchor="end" font-size="9" fill="#94A3B8">75</text>
+            <text x="45" y="93"  text-anchor="end" font-size="9" fill="#94A3B8">50</text>
+            <text x="45" y="133" text-anchor="end" font-size="9" fill="#94A3B8">25</text>
+            <text x="45" y="168" text-anchor="end" font-size="9" fill="#94A3B8">0</text>
+          </g>
+        </svg>
+        <!-- Légende -->
+        <div style="display:flex;gap:1.5rem;margin-top:.75rem;font-size:.8rem;flex-wrap:wrap;">
+          <span style="display:flex;align-items:center;gap:6px;color:var(--text-muted);">
+            <span style="width:12px;height:12px;background:var(--bleu-iue,#1A3A6B);border-radius:3px;display:inline-block;"></span>ESIT
+          </span>
+          <span style="display:flex;align-items:center;gap:6px;color:var(--text-muted);">
+            <span style="width:12px;height:12px;background:#C8A84B;border-radius:3px;display:inline-block;"></span>EME
+          </span>
+          <span style="display:flex;align-items:center;gap:6px;color:var(--text-muted);">
+            <span style="width:12px;height:12px;background:#64748B;border-radius:3px;display:inline-block;"></span>ADMIN
+          </span>
+        </div>
+      </div>
+
+      <!-- ─── Widgets : pointages + séances ─── -->
+      <div class="widgets-grid">
+
+        <!-- Derniers pointages -->
+        <div class="widget-card">
+          <div class="widget-title"><i class="fa-solid fa-thumbtack" style="color:var(--bleu-iue,#1A3A6B);margin-right:6px;"></i>Derniers pointages</div>
+          <ul id="last-pointages" style="list-style:none;padding:0;margin:0;">
+            <!-- Skeleton -->
+            <li style="padding:.7rem 0;border-bottom:1px solid var(--border);">
+              <div class="skeleton skeleton-line medium"></div>
+              <div class="skeleton skeleton-line short" style="margin-top:5px;"></div>
+            </li>
+            <li style="padding:.7rem 0;border-bottom:1px solid var(--border);">
+              <div class="skeleton skeleton-line full"></div>
+              <div class="skeleton skeleton-line medium" style="margin-top:5px;"></div>
+            </li>
+            <li style="padding:.7rem 0;">
+              <div class="skeleton skeleton-line medium"></div>
+              <div class="skeleton skeleton-line short" style="margin-top:5px;"></div>
+            </li>
+          </ul>
+          <a href="/rapport" style="display:block;text-align:center;margin-top:1rem;font-size:.8rem;color:var(--bleu-iue,#1A3A6B);text-decoration:none;font-weight:600;">
+            Voir tous les rapports →
+          </a>
+        </div>
+
+        <!-- Séances du jour -->
+        <div class="widget-card">
+          <div class="widget-title"><i class="fa-solid fa-calendar-days" style="color:var(--bleu-iue,#1A3A6B);margin-right:6px;"></i>Séances du jour</div>
+          <ul id="seances-today" style="list-style:none;padding:0;margin:0;">
+            <!-- Skeleton -->
+            <li style="padding:.7rem 0;border-bottom:1px solid var(--border);">
+              <div class="skeleton skeleton-line full"></div>
+              <div class="skeleton skeleton-line medium" style="margin-top:5px;"></div>
+            </li>
+            <li style="padding:.7rem 0;border-bottom:1px solid var(--border);">
+              <div class="skeleton skeleton-line medium"></div>
+              <div class="skeleton skeleton-line short" style="margin-top:5px;"></div>
+            </li>
+            <li style="padding:.7rem 0;">
+              <div class="skeleton skeleton-line full"></div>
+              <div class="skeleton skeleton-line medium" style="margin-top:5px;"></div>
+            </li>
+          </ul>
+          <a href="/seances" style="display:block;text-align:center;margin-top:1rem;font-size:.8rem;color:var(--bleu-iue,#1A3A6B);text-decoration:none;font-weight:600;">
+            Gérer les séances →
+          </a>
+        </div>
+
+      </div>
+
+    </div><!-- /container -->
+  </main>
+</div><!-- /app-layout -->
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts -->
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/animations.js"></script>
+<script src="/assets/js/dashboard.js"></script>
+
+<script>
+// ─── Fallback dashboard si dashboard.js absent ──────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+
+  // Date du jour
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('date-today').textContent =
+    now.toLocaleDateString('fr-FR', opts);
+
+  // Mise à jour dark text pour donut
+  function updateDonutTextColor() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const el = document.getElementById('donut-pct');
+    if (el) el.setAttribute('fill', isDark ? '#C8A84B' : '#1A3A6B');
+  }
+  updateDonutTextColor();
+
+  // Charger données dashboard
+  // Note : dashboard.js rend vers #derniers-pointages/#seances-du-jour (inexistants ici)
+  // Cet inline script gère l'affichage réel (#last-pointages, #seances-today)
+  async function loadDashboard() {
+    try {
+      let raw = null;
+      if (typeof api !== 'undefined') {
+        try { raw = await api.getDashboardStats(); } catch(_) {}
+      }
+
+      let stats;
+      if (raw) {
+        // Mapper la réponse réelle du backend vers la structure attendue
+        const kpis = raw.kpis || raw;
+        // Le backend retourne presents_aujourd_hui (pas presents_auj)
+        const presentsAuj = kpis.presents_aujourd_hui || kpis.presents_auj || 0;
+        const retardsMois = kpis.retards_mois || 0;
+        const absencesSem = kpis.absences_semaine || 0;
+        // Calculer le vrai breakdown depuis par_departement
+        let totP = 0, totR = 0, totA = 0;
+        (raw.par_departement || []).forEach(d => {
+          totP += d.nb_presents || 0;
+          totR += d.nb_retards  || 0;
+          totA += d.nb_absents  || 0;
+        });
+        const totAll = totP + totR + totA || 1;
+        const pctPresent = raw.taux_ponctualite != null ? Math.round(raw.taux_ponctualite) : Math.round(totP * 100 / totAll);
+        const pctRetard  = Math.round(totR * 100 / totAll);
+        const pctAbsent  = Math.max(0, 100 - pctPresent - pctRetard);
+
+        // Courbe 7 jours
+        const p7j   = (raw.presences_7_jours || []);
+        const vals7 = p7j.map(d => (d.nb_presents || 0) + (d.nb_retards || 0));
+        const labs7 = p7j.map(d => (d.date || '').slice(5).replace('-', '/'));
+
+        // Barres par département
+        const parDept = {};
+        (raw.par_departement || []).forEach(d => {
+          parDept[d.departement] = {
+            present: d.nb_presents || 0,
+            retard:  d.nb_retards  || 0,
+            absent:  d.nb_absents  || 0,
+          };
+        });
+
+        // Derniers pointages — normaliser les champs
+        const pointages = (raw.derniers_pointages || []).map(p => ({
+          nom:    p.nom    || '',
+          prenom: p.prenom || '',
+          heure:  p.heure_pointage || p.heure || '',
+          statut: p.statut || '',
+          dept:   p.departement || p.dept || '',
+        }));
+
+        // Séances du jour — normaliser les champs
+        const seances = (raw.seances_du_jour || []).map(s => ({
+          heure:  s.heure_debut || s.heure || '',
+          titre:  s.titre  || s.matiere || 'Séance',
+          matiere:s.matiere || '',
+          salle:  s.salle  || '--',
+        }));
+
+        stats = {
+          total_enseignants: kpis.total_enseignants || 0,
+          presents_auj:      presentsAuj,
+          retards_mois:      retardsMois,
+          absences_semaine:  absencesSem,
+          taux_present: pctPresent,
+          taux_retard:  pctRetard,
+          taux_absent:  pctAbsent,
+          presence_7j:  vals7.length ? vals7 : [0,0,0,0,0,0,0],
+          jours_7j:     labs7.length ? labs7 : ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+          par_dept:     Object.keys(parDept).length ? parDept : null,
+          derniers_pointages: pointages,
+          seances_today:      seances,
+        };
+      } else {
+        // Données démo si API indisponible
+        stats = {
+          total_enseignants: 5,
+          presents_auj: 3,
+          retards_mois: 1,
+          absences_semaine: 1,
+          taux_present: 75,
+          taux_retard: 12,
+          taux_absent: 13,
+          presence_7j: [2,3,1,3,2,3,3],
+          jours_7j: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+          par_dept: { ESIT: { present:2, retard:1, absent:0 }, EME: { present:1, retard:0, absent:1 }, ADMIN: { present:0, retard:0, absent:0 } },
+          derniers_pointages: [
+            { nom:'Mballa',  prenom:'Jean-Paul', heure:'08:05', statut:'PRESENT', dept:'ESIT' },
+            { nom:'Nnomo',   prenom:'Alice',     heure:'10:45', statut:'RETARD',  dept:'EME'  },
+            { nom:'Biyong',  prenom:'Stéphane',  heure:'14:00', statut:'PRESENT', dept:'ESIT' },
+          ],
+          seances_today: [
+            { heure:'08:00', titre:'Algorithmique avancée', matiere:'Informatique', salle:'B204' },
+            { heure:'10:30', titre:'Marketing Stratégique', matiere:'Marketing',    salle:'A101' },
+            { heure:'14:00', titre:'Base de données',       matiere:'Informatique', salle:'Labo Info' },
+          ]
+        };
+      }
+
+      // KPIs
+      animCount('kpi-total', stats.total_enseignants);
+      animCount('kpi-presents', stats.presents_auj);
+      animCount('kpi-retards', stats.retards_mois);
+      animCount('kpi-absences', stats.absences_semaine);
+      document.getElementById('kpi-total-delta').textContent    = stats.total_enseignants + ' inscrits';
+      document.getElementById('kpi-presents-delta').textContent = '↑ ' + stats.taux_present + '%';
+      document.getElementById('kpi-retards-delta').textContent  = stats.retards_mois + ' ce mois';
+      document.getElementById('kpi-absences-delta').textContent = '↑ ' + stats.absences_semaine;
+
+      // Alerte retards
+      if (stats.retards_mois > 0) {
+        document.getElementById('alert-section').style.display = 'block';
+        document.getElementById('alert-text').textContent =
+          stats.retards_mois + ' retard(s) enregistré(s) ce mois. Consultez les rapports pour le détail.';
+      }
+
+      // Courbe / barres — seulement si dashboard.js n'a pas déjà tout rendu
+      const hasDashboardJs = typeof loadDashboardStats === 'function';
+      if (!hasDashboardJs) {
+        if (stats.presence_7j.some(v => v > 0)) drawLineChart(stats.presence_7j, stats.jours_7j);
+        drawDonut(stats.taux_present, stats.taux_retard, stats.taux_absent);
+        if (stats.par_dept) drawBars(stats.par_dept);
+      }
+      // Légendes donut — toujours à jour (dashboard.js ne les met pas à jour)
+      const elLp = document.getElementById('legend-present'); if (elLp) elLp.textContent = stats.taux_present + ' %';
+      const elLr = document.getElementById('legend-retard');  if (elLr) elLr.textContent = stats.taux_retard  + ' %';
+      const elLa = document.getElementById('legend-absent');  if (elLa) elLa.textContent = stats.taux_absent  + ' %';
+
+      // Derniers pointages
+      renderPointages(stats.derniers_pointages);
+
+      // Séances
+      renderSeances(stats.seances_today);
+
+    } catch(err) {
+      console.warn('Dashboard load error:', err);
+    }
+  }
+
+  function animCount(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let val = 0;
+    const step = Math.ceil(target / 30);
+    const iv = setInterval(() => {
+      val = Math.min(val + step, target);
+      el.textContent = val;
+      if (val >= target) clearInterval(iv);
+    }, 40);
+  }
+
+  function drawLineChart(data, labels) {
+    const w = 500, h = 200, padL = 45, padR = 15, padT = 10, padB = 25;
+    const innerW = w - padL - padR;
+    const innerH = h - padT - padB;
+    const max = Math.max(...data, 1);
+
+    const points = data.map((v, i) => {
+      const x = padL + (i / (data.length - 1)) * innerW;
+      const y = padT + innerH - (v / max) * innerH;
+      return [x, y];
+    });
+
+    const polyPts = points.map(p => p.join(',')).join(' ');
+    const areaPts = `${points[0][0]},${padT + innerH} ` +
+                    points.map(p => p.join(',')).join(' ') +
+                    ` ${points[points.length - 1][0]},${padT + innerH}`;
+
+    const pathEl = document.getElementById('line-path');
+    const areaEl = document.getElementById('line-area');
+    if (!pathEl || !areaEl) return; // dashboard.js a remplacé ce SVG
+    pathEl.setAttribute('points', polyPts);
+    areaEl.setAttribute('points', areaPts);
+
+    // Points
+    const lineColor = getComputedStyle(document.documentElement).getPropertyValue('--bleu-iue').trim() || '#1A3A6B';
+    const dotsEl = document.getElementById('line-dots');
+    if (dotsEl) dotsEl.innerHTML = points.map(([x, y]) =>
+      `<circle cx="${x}" cy="${y}" r="4" fill="${lineColor}"/>`
+    ).join('');
+
+    // Labels X
+    const labelsEl = document.getElementById('line-labels-x');
+    if (labelsEl) labelsEl.innerHTML = points.map(([x, _], i) =>
+      `<text x="${x}" y="${padT + innerH + 16}" text-anchor="middle" font-size="9" fill="#94A3B8">${labels[i] || ''}</text>`
+    ).join('');
+  }
+
+  function drawDonut(pPresent, pRetard, pAbsent) {
+    const total = 377; // circonférence ≈ 2π×60
+    const pPct = pPresent / 100;
+    const rPct = pRetard  / 100;
+    const offset = -94; // -90° pour partir du haut
+
+    const presentLen = total * pPct;
+    const retardLen  = total * rPct;
+
+    const dp = document.getElementById('donut-present');
+    const dr = document.getElementById('donut-retard');
+
+    if (dp) { dp.setAttribute('stroke-dasharray', `${presentLen} ${total - presentLen}`); dp.setAttribute('stroke-dashoffset', String(offset)); }
+    if (dr) { dr.setAttribute('stroke-dasharray', `${retardLen} ${total - retardLen}`); dr.setAttribute('stroke-dashoffset', String(offset - presentLen)); }
+
+    const elPct = document.getElementById('donut-pct');
+    if (elPct) elPct.textContent = pPresent + '%';
+    const elLp = document.getElementById('legend-present'); if (elLp) elLp.textContent = pPresent + '%';
+    const elLr = document.getElementById('legend-retard');  if (elLr) elLr.textContent = pRetard  + '%';
+    const elLa = document.getElementById('legend-absent');  if (elLa) elLa.textContent = pAbsent  + '%';
+  }
+
+  function drawBars(depts) {
+    const keys   = Object.keys(depts);
+    const bleuIUE = getComputedStyle(document.documentElement).getPropertyValue('--bleu-iue').trim() || '#1A3A6B';
+    const colors = { ESIT: bleuIUE, EME: '#C8A84B', ADMIN: '#64748B' };
+    const w = 500, h = 165, padL = 50, padR = 20;
+    const innerW = w - padL - padR;
+    const barW   = Math.min(60, innerW / (keys.length * 3 + 1));
+    const gap    = barW * 0.4;
+    const groupW = barW * 3 + gap * 2;
+    const groupGap = (innerW - keys.length * groupW) / (keys.length + 1);
+
+    const barsG   = document.getElementById('bars-group');
+    const labelsX = document.getElementById('bars-labels-x');
+    barsG.innerHTML = '';
+    labelsX.innerHTML = '';
+
+    const allVals = keys.flatMap(k => Object.values(depts[k]));
+    const max = Math.max(...allVals, 1);
+
+    keys.forEach((dept, i) => {
+      const data = depts[dept];
+      const groupX = padL + groupGap + i * (groupW + groupGap);
+      const subKeys = ['present', 'retard', 'absent'];
+      const subColors = ['#16A34A', '#EA580C', '#DC2626'];
+
+      subKeys.forEach((sk, j) => {
+        const val  = data[sk] || 0;
+        const barH = (val / max) * (h - 30);
+        const x    = groupX + j * (barW + gap);
+        const y    = h - barH;
+        barsG.innerHTML += `
+          <rect x="${x}" y="${y}" width="${barW}" height="${barH}"
+                rx="4" fill="${subColors[j]}" opacity=".85"/>
+          <text x="${x + barW/2}" y="${y - 4}" text-anchor="middle"
+                font-size="8" fill="#94A3B8">${val}</text>`;
+      });
+
+      // Label groupe
+      const centerX = groupX + groupW / 2;
+      labelsX.innerHTML += `
+        <text x="${centerX}" y="${h + 15}" text-anchor="middle"
+              font-size="10" font-weight="600" fill="${colors[dept] || '#64748B'}">${dept}</text>`;
+    });
+  }
+
+  function renderPointages(items) {
+    const ul = document.getElementById('last-pointages');
+    if (!ul) return;
+    if (!items || !items.length) {
+      ul.innerHTML = '<li style="color:var(--text-muted);font-size:.85rem;padding:.75rem 0;">Aucun pointage aujourd\'hui</li>';
+      return;
+    }
+    ul.innerHTML = items.map(p => {
+      const prenom    = p.prenom || '';
+      const nom       = p.nom    || '';
+      const initiales = ((prenom)[0]||'') + ((nom)[0]||'');
+      const heure     = (p.heure || '').slice(0, 5); // HH:MM seulement
+      const statut    = p.statut || '';
+      const badgeCls  = statut === 'PRESENT' ? 'badge-present' : statut === 'RETARD' ? 'badge-retard' : 'badge-absent';
+      const badgeLbl  = statut === 'PRESENT' ? 'Présent' : statut === 'RETARD' ? 'Retard' : statut === 'ABSENT' ? 'Absent' : statut;
+      return `
+        <li class="pointage-item">
+          <div class="pointage-avatar">${initiales.toUpperCase()}</div>
+          <div class="pointage-info">
+            <div class="pointage-name">${prenom} ${nom}</div>
+            <div class="pointage-meta">${p.dept || ''}</div>
+          </div>
+          <span class="badge ${badgeCls}">${badgeLbl}</span>
+          <span class="pointage-time">${heure}</span>
+        </li>`;
+    }).join('');
+  }
+
+  function renderSeances(items) {
+    const ul = document.getElementById('seances-today');
+    if (!ul) return;
+    if (!items || !items.length) {
+      ul.innerHTML = '<li style="color:var(--text-muted);font-size:.85rem;padding:.75rem 0;">Aucune séance prévue</li>';
+      return;
+    }
+    ul.innerHTML = items.map(s => {
+      const heure = (s.heure || '').slice(0, 5); // HH:MM seulement
+      return `
+      <li class="seance-item">
+        <span class="seance-time-badge">${heure}</span>
+        <div class="seance-info">
+          <div class="seance-title">${s.titre || s.matiere || 'Séance'}</div>
+          <div class="seance-sub">${s.matiere || ''} · Salle ${s.salle || '--'}</div>
+        </div>
+      </li>`;
+    }).join('');
+  }
+
+  loadDashboard();
+});
+</script>
+</body>
+</html>
